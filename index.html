@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FitTrack Pro - Acompanhamento de Peso</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-card-hover: #1f3460;
+            --accent-primary: #e94560;
+            --accent-secondary: #ff6b9d;
+            --accent-gradient: linear-gradient(135deg, #e94560 0%, #ff6b9d 50%, #c44569 100%);
+            --accent-glow: 0 0 30px rgba(233, 69, 96, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --text-muted: #6c6c8a;
+            --success: #00d9a5;
+            --warning: #ffd93d;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background: var(--bg-primary);
+            background-image: 
+                radial-gradient(ellipse at 10% 20%, rgba(233, 69, 96, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(0, 217, 165, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 107, 157, 0.04) 0%, transparent 70%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* SIDEBAR NAVIGATION */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar:hover {
+            width: 200px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            box-shadow: var(--accent-glow);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-item i {
+            font-size: 1.3rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .nav-item span {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar:hover .nav-item span {
+            opacity: 1;
+        }
+
+        .nav-item:hover {
+            background: var(--glass);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: var(--accent-glow);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 80px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-left h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--bg-card);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-streak {
+            font-size: 0.75rem;
+            color: var(--success);
+        }
+
+        /* DASHBOARD GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-gradient);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card.success::before {
+            background: linear-gradient(135deg, #00d9a5, #00b894);
+        }
+
+        .stat-card.warning::before {
+            background: linear-gradient(135deg, #ffd93d, #f9ca24);
+        }
+
+        .stat-card.info::before {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--glass);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 15px;
+        }
+
+        .stat-card.success .stat-icon { color: #00d9a5; }
+        .stat-card.warning .stat-icon { color: #ffd93d; }
+        .stat-card.info .stat-icon { color: #74b9ff; }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .stat-change.positive {
+            background: rgba(0, 217, 165, 0.15);
+            color: #00d9a5;
+        }
+
+        .stat-change.negative {
+            background: rgba(233, 69, 96, 0.15);
+            color: #e94560;
+        }
+
+        /* CONTENT SECTIONS */
+        .content-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--accent-primary);
+        }
+
+        /* PROGRESS RING */
+        .progress-ring-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 12;
+        }
+
+        .progress-ring .bg {
+            stroke: var(--glass);
+        }
+
+        .progress-ring .progress {
+            stroke: url(#gradient);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* CHART AREA */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        #weightChart {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* CALENDAR */
+        .calendar-container {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav h3 {
+            font-size: 1.1rem;
+        }
+
+        .calendar-nav-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .cal-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: var(--glass);
+            color: var(--text-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cal-btn:hover {
+            background: var(--accent-primary);
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 10px 0;
+            font-weight: 600;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .day:hover {
+            background: var(--glass);
+        }
+
+        .day.today {
+            border: 2px solid var(--accent-primary);
+        }
+
+        .day.selected {
+            background: var(--accent-gradient);
+            font-weight: 700;
+        }
+
+        .day.has-record::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+
+        .day.selected.has-record::after {
+            background: white;
+        }
+
+        /* REGISTRO FORM */
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeSlide 0.4s ease;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-input {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* PHOTO UPLOAD */
+        .photo-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .photo-upload-box {
+            aspect-ratio: 3/4;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-upload-box:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .photo-upload-box i {
+            font-size: 2rem;
+            color: var(--accent-primary);
+            margin-bottom: 10px;
+        }
+
+        .photo-upload-box span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .photo-upload-box img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .photo-upload-box.has-photo img {
+            display: block;
+        }
+
+        .photo-upload-box.has-photo i,
+        .photo-upload-box.has-photo span {
+            display: none;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* DAY DETAILS */
+        .day-detail-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* PHOTO GALLERY */
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .gallery-photo {
+            aspect-ratio: 3/4;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .gallery-photo:hover {
+            transform: scale(1.02);
+        }
+
+        .gallery-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* SETTINGS */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .settings-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item:hover {
+            background: var(--glass);
+        }
+
+        .settings-item-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .settings-item-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--glass);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+        }
+
+        .settings-item-label {
+            font-weight: 500;
+        }
+
+        .settings-item-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* TOGGLE SWITCH */
+        .toggle {
+            width: 50px;
+            height: 28px;
+            background: var(--glass);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.active {
+            background: var(--accent-primary);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s;
+        }
+
+        .toggle.active::after {
+            transform: translateX(22px);
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 217, 165, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.5rem;
+            color: var(--success);
+        }
+
+        .modal h2 {
+            margin-bottom: 10px;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        /* HISTORY LIST */
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .history-date {
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .history-day {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .history-month {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-weight {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .history-change {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .history-change.down {
+            background: rgba(0, 217, 165, 0.15);
+            color: var(--success);
+        }
+
+        .history-change.up {
+            background: rgba(233, 69, 96, 0.15);
+            color: var(--accent-primary);
+        }
+
+        /* NOTAS */
+        .notes-textarea {
+            width: 100%;
+            min-height: 100px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* RESPONSIVO */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .content-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: 70px;
+                flex-direction: row;
+                bottom: 0;
+                top: auto;
+                padding: 0 10px;
+                justify-content: space-around;
+            }
+            .sidebar:hover {
+                width: 100%;
+            }
+            .logo {
+                display: none;
+            }
+            .nav-menu {
+                flex-direction: row;
+                width: auto;
+                gap: 5px;
+            }
+            .nav-item {
+                padding: 12px 15px;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .nav-item i {
+                font-size: 1.2rem;
+            }
+            .nav-item span {
+                opacity: 1;
+                font-size: 0.7rem;
+            }
+            .main-content {
+                margin-left: 0;
+                margin-bottom: 70px;
+                padding: 20px;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full {
+                grid-column: span 1;
+            }
+            .photo-upload-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .stat-card {
+                padding: 20px;
+            }
+            .stat-value {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="fas fa-heartbeat"></i>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="showSection('dashboard')">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showSection('registro')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Registrar</span>
+            </div>
+            <div class="nav-item" onclick="showSection('historico')">
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
+            </div>
+            <div class="nav-item" onclick="showSection('config')">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- DASHBOARD SECTION -->
+        <section id="section-dashboard" class="form-section active">
+            <div class="header">
+                <div class="header-left">
+                    <h1>Olá! 👋</h1>
+                    <p id="greeting-text">Vamos acompanhar seu progresso hoje!</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <div class="user-name" id="user-name-display">Usuário</div>
+                        <div class="user-streak"><i class="fas fa-fire"></i> <span id="streak-count">0</span> dias de sequência</div>
+                    </div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-weight"></i></div>
+                    <div class="stat-value" id="current-weight">--</div>
+                    <div class="stat-label">Peso Atual</div>
+                    <div class="stat-change positive" id="weight-change">
+                        <i class="fas fa-arrow-down"></i> -- kg
+                    </div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+                    <div class="stat-value" id="goal-weight">65 kg</div>
+                    <div class="stat-label">Meta</div>
+                    <div class="stat-change positive" id="remaining-weight">
+                        <i class="fas fa-flag"></i> Faltam -- kg
+                    </div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon"><i class="fas fa-fire-alt"></i></div>
+                    <div class="stat-value" id="total-lost">--</div>
+                    <div class="stat-label">Total Perdido</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-trophy"></i> Continue assim!
+                    </div>
+                </div>
+                <div class="stat-card info">
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-value" id="total-records">0</div>
+                    <div class="stat-label">Registros</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-chart-line"></i> Ativo
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHART AND PROGRESS -->
+            <div class="content-row">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-area"></i>
+                            Evolução do Peso
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="setChartPeriod(7)">7D</button>
+                            <button class="btn btn-secondary" onclick="setChartPeriod(30)">30D</button>
+                            <button class="btn btn-secondary" onclick="setChartPeriod(90)">90D</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="weightChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-trophy"></i>
+                            Progresso da Meta
+                        </div>
+                    </div>
+                    <div class="progress-ring-container">
+                        <div class="progress-ring">
+                            <svg width="200" height="200">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#e94560"/>
+                                        <stop offset="100%" stop-color="#ff6b9d"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="bg" cx="100" cy="100" r="85"/>
+                                <circle class="progress" id="progress-circle" cx="100" cy="100" r="85" 
+                                    stroke-dasharray="534" stroke-dashoffset="534"/>
+                            </svg>
+                            <div class="progress-center">
+                                <div class="progress-value" id="progress-percent">0%</div>
+                                <div class="progress-label">concluído</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <p style="color: var(--text-secondary); margin-bottom: 10px;">
+                                <i class="fas fa-info-circle"></i> Baseado no peso inicial
+                            </p>
+                            <div style="font-size: 0.9rem;">
+                                <span id="initial-weight-display">88.0 kg</span> → 
+                                <span style="color: var(--success);" id="goal-weight-display">65.0 kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CALENDAR -->
+            <div class="calendar-container">
+                <div class="calendar-nav">
+                    <div class="calendar-nav-btns">
+                        <button class="cal-btn" onclick="changeMonth(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    <h3 id="calendar-month-year">Janeiro 2025</h3>
+                    <div class="calendar-nav-btns">
+                        <button class="cal-btn" onclick="changeMonth(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="weekdays">
+                    <div class="weekday">Dom</div>
+                    <div class="weekday">Seg</div>
+                    <div class="weekday">Ter</div>
+                    <div class="weekday">Qua</div>
+                    <div class="weekday">Qui</div>
+                    <div class="weekday">Sex</div>
+                    <div class="weekday">Sáb</div>
+                </div>
+                <div class="days-grid" id="calendar-days"></div>
+                
+                <div class="day-detail-card" id="day-details">
+                    <p style="text-align: center; color: var(--text-muted);">
+                        Selecione um dia para ver os detalhes
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- REGISTRO SECTION -->
+        <section id="section-registro" class="form-section">
+            <div class="header">
+                <div class="header-left">
+                    <h1>Novo Registro 📝</h1>
+                    <p>Registre suas medidas de hoje</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-edit"></i>
+                        Dados do Dia
+                    </div>
+                    <span style="color: var(--text-secondary);" id="register-date"></span>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-weight"></i> Peso (kg)
+                        </label>
+                        <input type="number" class="form-input" id="input-peso" placeholder="Ex: 75.5" step="0.1" inputmode="decimal">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-ruler"></i> Cintura (cm)
+                        </label>
+                        <input type="number" class="form-input" id="input-cintura" placeholder="Ex: 80" inputmode="numeric">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tint"></i> Água (copos)
+                        </label>
+                        <input type="number" class="form-input" id="input-agua" placeholder="Ex: 8" inputmode="numeric">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-bed"></i> Sono (horas)
+                        </label>
+                        <input type="number" class="form-input" id="input-sono" placeholder="Ex: 7" step="0.5" inputmode="decimal">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">
+                            <i class="fas fa-sticky-note"></i> Observações
+                        </label>
+                        <textarea class="notes-textarea" id="input-notas" placeholder="Como você está se sentindo hoje? Alguma observação importante?"></textarea>
+                    </div>
+                </div>
+
+                <div class="card-header" style="margin-top: 10px;">
+                    <div class="card-title">
+                        <i class="fas fa-camera"></i>
+                        Fotos de Progresso
+                    </div>
+                </div>
+
+                <div class="photo-upload-grid">
+                    <div class="photo-upload-box" onclick="document.getElementById('photo-frente').click()">
+                        <input type="file" id="photo-frente" accept="image/*" hidden onchange="previewPhoto(this, 'preview-frente')">
+                        <img id="preview-frente">
+                        <i class="fas fa-camera"></i>
+                        <span>Frente</span>
+                    </div>
+                    <div class="photo-upload-box" onclick="document.getElementById('photo-lado').click()">
+                        <input type="file" id="photo-lado" accept="image/*" hidden onchange="previewPhoto(this, 'preview-lado')">
+                        <img id="preview-lado">
+                        <i class="fas fa-camera"></i>
+                        <span>Lado</span>
+                    </div>
+                    <div class="photo-upload-box" onclick="document.getElementById('photo-costas').click()">
+                        <input type="file" id="photo-costas" accept="image/*" hidden onchange="previewPhoto(this, 'preview-costas')">
+                        <img id="preview-costas">
+                        <i class="fas fa-camera"></i>
+                        <span>Costas</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%;" onclick="saveRecord()">
+                    <i class="fas fa-save"></i>
+                    Salvar Registro
+                </button>
+            </div>
+        </section>
+
+        <!-- HISTORICO SECTION -->
+        <section id="section-historico" class="form-section">
+            <div class="header">
+                <div class="header-left">
+                    <h1>Histórico 📊</h1>
+                    <p>Todos os seus registros</p>
+                </div>
+                <button class="btn btn-secondary" onclick="exportData()">
+                    <i class="fas fa-download"></i>
+                    Exportar
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-list"></i>
+                        Registros Recentes
+                    </div>
+                </div>
+                <div class="history-list" id="history-list">
+                    <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        Nenhum registro encontrado
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONFIG SECTION -->
+        <section id="section-config" class="form-section">
+            <div class="header">
+                <div class="header-left">
+                    <h1>Configurações ⚙️</h1>
+                    <p>Personalize seu aplicativo</p>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">Perfil</div>
+                <div class="settings-card">
+                    <div class="settings-item" onclick="editSetting('nome')">
+                        <div class="settings-item-left">
+                            <div class="settings-item-icon"><i class="fas fa-user"></i></div>
+                            <div>
+                                <div class="settings-item-label">Nome</div>
+                                <div class="settings-item-desc" id="config-nome">Não definido</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div class="settings-item" onclick="editSetting('meta')">
+                        <div class="settings-item-left">
+                            <div class="settings-item-icon"><i class="fas fa-bullseye"></i></div>
+                            <div>
+                                <div class="settings-item-label">Meta de Peso</div>
+                                <div class="settings-item-desc" id="config-meta">65 kg</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div class="settings-item" onclick="editSetting('inicial')">
+                        <div class="settings-item-left">
+                            <div class="settings-item-icon"><i class="fas fa-weight"></i></div>
+                            <div>
+                                <div class="settings-item-label">Peso Inicial</div>
+                                <div class="settings-item-desc" id="config-inicial">88 kg</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">Notificações</div>
+                <div class="settings-card">
+                    <div class="settings-item">
+                        <div class="settings-item-left">
+                            <div class="settings-item-icon"><i class="fas fa-bell"></i></div>
+                            <div>
+                                <div class="settings-item-label">Lembrete Diário</div>
+                                <div class="settings-item-desc">Receber lembrete para registrar</div>
+                            </div>
+                        </div>
+                        <div class="toggle" id="toggle-reminder" onclick="toggleSetting('reminder')"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">Dados</div>
+                <div class="settings-card">
+                    <div class="settings-item" onclick="exportData()">
+                        <div class="settings-item-left">
+                            <div class="settings-item-icon"><i class="fas fa-download"></i></div>
+                            <div>
+                                <div class="settings-item-label">Exportar Dados</div>
+                                <div class="settings-item-desc">Baixar todos os registros</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div class="settings-item" onclick="clearAllData()">
+                        <div class="settings-item-left">
+                            <div class="settings-item-icon" style="color: var(--accent-primary);"><i class="fas fa-trash"></i></div>
+                            <div>
+                                <div class="settings-item-label" style="color: var(--accent-primary);">Limpar Dados</div>
+                                <div class="settings-item-desc">Apagar todos os registros</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SUCCESS MODAL -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal">
+            <div class="modal-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2>Registro Salvo!</h2>
+            <p>Seus dados foram salvos com sucesso. Continue assim!</p>
+            <button class="btn btn-primary" onclick="closeModal()">
+                Continuar
+            </button>
+        </div>
+    </div>
+
+    <!-- PHOTO MODAL -->
+    <div class="modal-overlay" id="photo-modal" onclick="closePhotoModal()">
+        <div class="modal" style="max-width: 90%; padding: 20px;" onclick="event.stopPropagation()">
+            <img id="modal-photo-img" style="width: 100%; border-radius: 16px; margin-bottom: 15px;">
+            <button class="btn btn-secondary" onclick="closePhotoModal()">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONFIGURAÇÕES ==========
+        let CONFIG = {
+            metaPeso: 65.0,
+            pesoInicial: 88.0,
+            nome: 'Usuário'
+        };
+
+        let currentCalendarDate = new Date();
+        let selectedDate = new Date();
+        let chartPeriod = 14;
+
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+            updateDashboard();
+            renderCalendar();
+            updateHistory();
+            updateGreeting();
+            updateRegisterDate();
+            drawChart();
+        });
+
+        function loadConfig() {
+            const saved = localStorage.getItem('fittrack_config');
+            if (saved) {
+                CONFIG = { ...CONFIG, ...JSON.parse(saved) };
+            }
+            document.getElementById('config-nome').textContent = CONFIG.nome;
+            document.getElementById('config-meta').textContent = CONFIG.metaPeso + ' kg';
+            document.getElementById('config-inicial').textContent = CONFIG.pesoInicial + ' kg';
+            document.getElementById('user-name-display').textContent = CONFIG.nome;
+            document.getElementById('goal-weight').textContent = CONFIG.metaPeso + ' kg';
+            document.getElementById('initial-weight-display').textContent = CONFIG.pesoInicial + ' kg';
+            document.getElementById('goal-weight-display').textContent = CONFIG.metaPeso + ' kg';
+        }
+
+        function saveConfig() {
+            localStorage.setItem('fittrack_config', JSON.stringify(CONFIG));
+            loadConfig();
+            updateDashboard();
+        }
+
+        // ========== NAVEGAÇÃO ==========
+        function showSection(section) {
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('section-' + section).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            if (section === 'dashboard') {
+                updateDashboard();
+                drawChart();
+            } else if (section === 'historico') {
+                updateHistory();
+            }
+        }
+
+        // ========== DASHBOARD ==========
+        function updateDashboard() {
+            const records = getRecords();
+            const latestWeight = records.length > 0 ? records[0].peso : CONFIG.pesoInicial;
+            
+            // Peso atual
+            document.getElementById('current-weight').textContent = latestWeight.toFixed(1) + ' kg';
+            
+            // Total perdido
+            const totalLost = CONFIG.pesoInicial - latestWeight;
+            document.getElementById('total-lost').textContent = totalLost.toFixed(1) + ' kg';
+            
+            // Mudança de peso (comparado com registro anterior)
+            if (records.length > 1) {
+                const change = records[1].peso - records[0].peso;
+                const changeEl = document.getElementById('weight-change');
+                if (change > 0) {
+                    changeEl.innerHTML = `<i class="fas fa-arrow-down"></i> ${change.toFixed(1)} kg`;
+                    changeEl.className = 'stat-change positive';
+                } else if (change < 0) {
+                    changeEl.innerHTML = `<i class="fas fa-arrow-up"></i> ${Math.abs(change).toFixed(1)} kg`;
+                    changeEl.className = 'stat-change negative';
+                }
+            }
+            
+            // Peso restante
+            const remaining = Math.max(0, latestWeight - CONFIG.metaPeso);
+            document.getElementById('remaining-weight').innerHTML = `<i class="fas fa-flag"></i> Faltam ${remaining.toFixed(1)} kg`;
+            
+            // Total de registros
+            document.getElementById('total-records').textContent = records.length;
+            
+            // Progresso
+            const totalToLose = CONFIG.pesoInicial - CONFIG.metaPeso;
+            const progress = totalToLose > 0 ? Math.min(100, Math.max(0, (totalLost / totalToLose) * 100)) : 0;
+            
+            document.getElementById('progress-percent').textContent = progress.toFixed(0) + '%';
+            const circumference = 2 * Math.PI * 85;
+            const offset = circumference - (progress / 100) * circumference;
+            document.getElementById('progress-circle').style.strokeDashoffset = offset;
+            
+            // Streak
+            updateStreak(records);
+        }
+
+        function updateStreak(records) {
+            let streak = 0;
+            const today = new Date().toLocaleDateString('pt-BR');
+            
+            if (records.length > 0) {
+                let checkDate = new Date();
+                for (let i = 0; i < records.length; i++) {
+                    const recordDate = records[i].data;
+                    const checkDateStr = checkDate.toLocaleDateString('pt-BR');
+                    
+                    if (recordDate === checkDateStr) {
+                        streak++;
+                        checkDate.setDate(checkDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            
+            document.getElementById('streak-count').textContent = streak;
+        }
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Boa noite';
+            if (hour >= 5 && hour < 12) greeting = 'Bom dia';
+            else if (hour >= 12 && hour < 18) greeting = 'Boa tarde';
+            
+            document.querySelector('.header-left h1').innerHTML = `${greeting}! 👋`;
+        }
+
+        function updateRegisterDate() {
+            const today = new Date().toLocaleDateString('pt-BR', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long' 
+            });
+            document.getElementById('register-date').textContent = today.charAt(0).toUpperCase() + today.slice(1);
+        }
+
+        // ========== GRÁFICO ==========
+        function drawChart() {
+            const canvas = document.getElementById('weightChart');
+            const ctx = canvas.getContext('2d');
+            const records = getRecords().slice(0, chartPeriod).reverse();
+
+            canvas.width = canvas.offsetWidth * 2;
+            canvas.height = canvas.offsetHeight * 2;
+            ctx.scale(2, 2);
+
+            const width = canvas.offsetWidth;
+            const height = canvas.offsetHeight;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (records.length === 0) {
+                ctx.fillStyle = '#6c6c8a';
+                ctx.font = '16px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText('Sem dados para exibir', width / 2, height / 2);
+                return;
+            }
+
+            const padding = { top: 30, right: 20, bottom: 40, left: 50 };
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            const weights = records.map(r => r.peso);
+            const minWeight = Math.min(...weights, CONFIG.metaPeso) - 2;
+            const maxWeight = Math.max(...weights, CONFIG.pesoInicial) + 2;
+
+            // Grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padding.top + (i / 4) * chartHeight;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+
+                const value = maxWeight - (i / 4) * (maxWeight - minWeight);
+                ctx.fillStyle = '#6c6c8a';
+                ctx.font = '11px Segoe UI';
+                ctx.textAlign = 'right';
+                ctx.fillText(value.toFixed(1), padding.left - 10, y + 4);
+            }
+
+            // Meta line
+            const metaY = padding.top + ((maxWeight - CONFIG.metaPeso) / (maxWeight - minWeight)) * chartHeight;
+            ctx.strokeStyle = '#00d9a5';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding.left, metaY);
+            ctx.lineTo(width - padding.right, metaY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#00d9a5';
+            ctx.font = '11px Segoe UI';
+            ctx.textAlign = 'left';
+            ctx.fillText('Meta: ' + CONFIG.metaPeso + 'kg', width - padding.right - 80, metaY - 8);
+
+            // Area fill
+            if (records.length > 1) {
+                const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+                gradient.addColorStop(0, 'rgba(233, 69, 96, 0.3)');
+                gradient.addColorStop(1, 'rgba(233, 69, 96, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+
+                records.forEach((r, i) => {
+                    const x = padding.left + (i / (records.length - 1)) * chartWidth;
+                    const y = padding.top + ((maxWeight - r.peso) / (maxWeight - minWeight)) * chartHeight;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+
+                ctx.lineTo(padding.left + chartWidth, height - padding.bottom);
+                ctx.lineTo(padding.left, height - padding.bottom);
+                ctx.closePath();
+                ctx.fill();
+
+                // Line
+                ctx.strokeStyle = '#e94560';
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+
+                records.forEach((r, i) => {
+                    const x = padding.left + (i / (records.length - 1)) * chartWidth;
+                    const y = padding.top + ((maxWeight - r.peso) / (maxWeight - minWeight)) * chartHeight;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                // Points
+                records.forEach((r, i) => {
+                    const x = padding.left + (i / (records.length - 1)) * chartWidth;
+                    const y = padding.top + ((maxWeight - r.peso) / (maxWeight - minWeight)) * chartHeight;
+
+                    ctx.fillStyle = '#e94560';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#0f0f23';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        function setChartPeriod(days) {
+            chartPeriod = days;
+            drawChart();
+        }
+
+        // ========== CALENDÁRIO ==========
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-days');
+            const label = document.getElementById('calendar-month-year');
+            const records = getRecords();
+
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            const monthName = currentCalendarDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            label.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.appendChild(document.createElement('div'));
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'day';
+                cell.textContent = day;
+
+                const cellDate = new Date(year, month, day);
+                const dateStr = cellDate.toLocaleDateString('pt-BR');
+
+                if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    cell.classList.add('today');
+                }
+
+                if (cellDate.toDateString() === selectedDate.toDateString()) {
+                    cell.classList.add('selected');
+                }
+
+                if (records.find(r => r.data === dateStr)) {
+                    cell.classList.add('has-record');
+                }
+
+                cell.onclick = () => {
+                    selectedDate = new Date(year, month, day);
+                    renderCalendar();
+                    showDayDetails(selectedDate);
+                };
+
+                grid.appendChild(cell);
+            }
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function showDayDetails(date) {
+            const container = document.getElementById('day-details');
+            const dateStr = date.toLocaleDateString('pt-BR');
+            const records = getRecords();
+            const record = records.find(r => r.data === dateStr);
+
+            if (record) {
+                let photosHtml = '';
+                if (record.fotoFrente || record.fotoLado || record.fotoCostas) {
+                    photosHtml = `<div class="photo-gallery">`;
+                    if (record.fotoFrente) photosHtml += `<div class="gallery-photo" onclick="openPhotoModal('${record.fotoFrente}')"><img src="${record.fotoFrente}"></div>`;
+                    if (record.fotoLado) photosHtml += `<div class="gallery-photo" onclick="openPhotoModal('${record.fotoLado}')"><img src="${record.fotoLado}"></div>`;
+                    if (record.fotoCostas) photosHtml += `<div class="gallery-photo" onclick="openPhotoModal('${record.fotoCostas}')"><img src="${record.fotoCostas}"></div>`;
+                    photosHtml += `</div>`;
+                }
+
+                container.innerHTML = `
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-calendar"></i> Data</span>
+                        <span class="detail-value">${dateStr}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-weight"></i> Peso</span>
+                        <span class="detail-value">${record.peso} kg</span>
+                    </div>
+                    ${record.cintura ? `<div class="detail-row"><span class="detail-label"><i class="fas fa-ruler"></i> Cintura</span><span class="detail-value">${record.cintura} cm</span></div>` : ''}
+                    ${record.agua ? `<div class="detail-row"><span class="detail-label"><i class="fas fa-tint"></i> Água</span><span class="detail-value">${record.agua} copos</span></div>` : ''}
+                    ${record.sono ? `<div class="detail-row"><span class="detail-label"><i class="fas fa-bed"></i> Sono</span><span class="detail-value">${record.sono}h</span></div>` : ''}
+                    ${record.notas ? `<div class="detail-row"><span class="detail-label"><i class="fas fa-sticky-note"></i> Notas</span><span class="detail-value" style="font-size: 0.9rem;">${record.notas}</span></div>` : ''}
+                    ${photosHtml}
+                `;
+            } else {
+                container.innerHTML = `<p style="text-align: center; color: var(--text-muted);">Nenhum registro para ${dateStr}</p>`;
+            }
+        }
+
+        // ========== REGISTRO ==========
+        async function saveRecord() {
+            const peso = parseFloat(document.getElementById('input-peso').value);
+            if (!peso || peso <= 0) {
+                alert('Por favor, informe um peso válido.');
+                return;
+            }
+
+            const cintura = document.getElementById('input-cintura').value;
+            const agua = document.getElementById('input-agua').value;
+            const sono = document.getElementById('input-sono').value;
+            const notas = document.getElementById('input-notas').value;
+
+            const fileFrente = document.getElementById('photo-frente').files[0];
+            const fileLado = document.getElementById('photo-lado').files[0];
+            const fileCostas = document.getElementById('photo-costas').files[0];
+
+            let fotoFrente = null, fotoLado = null, fotoCostas = null;
+
+            if (fileFrente) fotoFrente = await compressImage(fileFrente);
+            if (fileLado) fotoLado = await compressImage(fileLado);
+            if (fileCostas) fotoCostas = await compressImage(fileCostas);
+
+            const record = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                peso,
+                cintura: cintura || null,
+                agua: agua || null,
+                sono: sono || null,
+                notas: notas || null,
+                fotoFrente,
+                fotoLado,
+                fotoCostas,
+                timestamp: Date.now()
+            };
+
+            let records = getRecords();
+            records = records.filter(r => r.data !== record.data);
+            records.unshift(record);
+            records.sort((a, b) => b.timestamp - a.timestamp);
+
+            try {
+                localStorage.setItem('fittrack_records', JSON.stringify(records));
+                document.getElementById('success-modal').classList.add('active');
+                clearForm();
+                updateDashboard();
+                renderCalendar();
+            } catch (e) {
+                alert('Erro ao salvar. Tente usar fotos menores.');
+            }
+        }
+
+        function compressImage(file) {
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const maxWidth = 500;
+                        const scale = maxWidth / img.width;
+                        canvas.width = maxWidth;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function previewPhoto(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.getElementById(previewId);
+                    img.src = e.target.result;
+                    input.parentElement.classList.add('has-photo');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('input-peso').value = '';
+            document.getElementById('input-cintura').value = '';
+            document.getElementById('input-agua').value = '';
+            document.getElementById('input-sono').value = '';
+            document.getElementById('input-notas').value = '';
+            document.getElementById('photo-frente').value = '';
+            document.getElementById('photo-lado').value = '';
+            document.getElementById('photo-costas').value = '';
+            document.querySelectorAll('.photo-upload-box').forEach(box => {
+                box.classList.remove('has-photo');
+                box.querySelector('img').src = '';
+            });
+        }
+
+        // ========== HISTÓRICO ==========
+        function updateHistory() {
+            const container = document.getElementById('history-list');
+            const records = getRecords();
+
+            if (records.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 40px;">Nenhum registro encontrado</p>`;
+                return;
+            }
+
+            container.innerHTML = records.map((r, i) => {
+                const dateParts = r.data.split('/');
+                const change = i < records.length - 1 ? (records[i + 1].peso - r.peso).toFixed(1) : 0;
+                const changeClass = change > 0 ? 'down' : 'up';
+
+                return `
+                    <div class="history-item">
+                        <div class="history-date">
+                            <div class="history-day">${dateParts[0]}</div>
+                            <div class="history-month">${getMonthAbbr(parseInt(dateParts[1]) - 1)}</div>
+                        </div>
+                        <div class="history-info">
+                            <div class="history-weight">${r.peso} kg</div>
+                            <div class="history-meta">
+                                ${r.cintura ? 'Cintura: ' + r.cintura + 'cm' : ''} 
+                                ${r.agua ? '• Água: ' + r.agua : ''}
+                            </div>
+                        </div>
+                        ${change != 0 ? `<div class="history-change ${changeClass}">${change > 0 ? '↓' : '↑'} ${Math.abs(change)} kg</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getMonthAbbr(month) {
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            return months[month];
+        }
+
+        // ========== CONFIGURAÇÕES ==========
+        function editSetting(type) {
+            let value;
+            if (type === 'nome') {
+                value = prompt('Digite seu nome:', CONFIG.nome);
+                if (value) CONFIG.nome = value;
+            } else if (type === 'meta') {
+                value = prompt('Digite sua meta de peso (kg):', CONFIG.metaPeso);
+                if (value && !isNaN(parseFloat(value))) CONFIG.metaPeso = parseFloat(value);
+            } else if (type === 'inicial') {
+                value = prompt('Digite seu peso inicial (kg):', CONFIG.pesoInicial);
+                if (value && !isNaN(parseFloat(value))) CONFIG.pesoInicial = parseFloat(value);
+            }
+            saveConfig();
+        }
+
+        function toggleSetting(setting) {
+            const toggle = document.getElementById('toggle-' + setting);
+            toggle.classList.toggle('active');
+        }
+
+        function exportData() {
+            const records = getRecords();
+            const data = JSON.stringify({ config: CONFIG, records }, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fittrack-backup-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+        }
+
+        function clearAllData() {
+            if (confirm('Tem certeza que deseja apagar TODOS os dados? Esta ação não pode ser desfeita.')) {
+                localStorage.removeItem('fittrack_records');
+                localStorage.removeItem('fittrack_config');
+                location.reload();
+            }
+        }
+
+        // ========== UTILITÁRIOS ==========
+        function getRecords() {
+            return JSON.parse(localStorage.getItem('fittrack_records') || '[]');
+        }
+
+        function closeModal() {
+            document.getElementById('success-modal').classList.remove('active');
+        }
+
+        function openPhotoModal(src) {
+            document.getElementById('modal-photo-img').src = src;
+            document.getElementById('photo-modal').classList.add('active');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photo-modal').classList.remove('active');
+        }
+
+        // Redimensionar gráfico
+        window.addEventListener('resize', () => {
+            if (document.getElementById('section-dashboard').classList.contains('active')) {
+                drawChart();
+            }
+        });
+    </script>
+</body>
+</html>
