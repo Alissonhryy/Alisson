@@ -40,12 +40,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ========== SERVICE WORKER (PWA) ==========
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js')
+        // Tentar registrar com caminho relativo
+        navigator.serviceWorker.register('./service-worker.js')
             .then((registration) => {
                 console.log('Service Worker registrado com sucesso:', registration);
             })
             .catch((error) => {
-                console.log('Falha ao registrar Service Worker:', error);
+                // Silenciar erro se o arquivo não existir
+                console.log('Service Worker não disponível:', error.message);
             });
     }
 }
@@ -1436,11 +1438,9 @@ async function checkIfRecordedToday() {
     const hasRecordToday = records.some(r => r.data === today);
     
     if (!hasRecordToday && 'Notification' in window && Notification.permission === 'granted') {
-        new Notification('FitTrack Pro', {
-            body: 'Você esqueceu de registrar hoje! Não deixe seu progresso passar.',
-            icon: '/icon-192.png',
-            badge: '/icon-192.png'
-        });
+                    new Notification('FitTrack Pro', {
+                        body: 'Você esqueceu de registrar hoje! Não deixe seu progresso passar.'
+                    });
     }
 }
 
@@ -2238,9 +2238,7 @@ function checkWorkoutReminders() {
             if (now.getHours() === reminderHour && now.getMinutes() === 0) {
                 if (Notification.permission === 'granted') {
                     new Notification('FitTrack Pro - Hora do Treino 💪', {
-                        body: `É hora do ${todayWorkout.nome}! Não esqueça de treinar hoje.`,
-                        icon: '/icon-192.png',
-                        badge: '/icon-192.png'
+                        body: `É hora do ${todayWorkout.nome}! Não esqueça de treinar hoje.`
                     });
                 }
             }
