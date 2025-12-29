@@ -4,34 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="FitTrack Pro - Acompanhamento de peso, medidas e treinos personalizados">
-    <meta name="theme-color" content="#0a0e27">
+    <meta name="theme-color" content="#000000">
     <title>FitTrack Pro</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --bg-primary: #0a0e27;
-            --bg-secondary: #141b2d;
-            --bg-card: #1a2332;
-            --accent-primary: #6366f1;
-            --accent-secondary: #8b5cf6;
-            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --bg-primary: #000000;
+            --bg-secondary: #1c1c1e;
+            --bg-card: #2c2c2e;
+            --bg-card-light: rgba(255, 255, 255, 0.05);
+            --accent-primary: #007AFF;
+            --accent-secondary: #5856D6;
+            --accent-gradient: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
             --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --border-radius: 16px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-tertiary: rgba(255, 255, 255, 0.4);
+            --success: #34C759;
+            --warning: #FF9500;
+            --error: #FF3B30;
+            --border-radius: 14px;
+            --border-radius-large: 20px;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.2);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --blur: blur(40px);
         }
 
         [data-theme="light"] {
-            --bg-primary: #f8fafc;
+            --bg-primary: #f2f2f7;
             --bg-secondary: #ffffff;
             --bg-card: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --bg-card-light: rgba(0, 0, 0, 0.02);
+            --text-primary: #000000;
+            --text-secondary: rgba(0, 0, 0, 0.6);
+            --text-tertiary: rgba(0, 0, 0, 0.4);
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
 
         * {
@@ -41,25 +49,29 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.6;
+            line-height: 1.47059;
+            font-weight: 400;
+            letter-spacing: -0.022em;
             overflow-x: hidden;
             min-height: 100vh;
             transition: var(--transition);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 100px;
+            padding: 16px;
+            padding-bottom: 90px;
         }
 
         @media (min-width: 769px) {
             .container {
-                padding: 30px;
+                padding: 24px;
                 padding-left: 100px;
             }
         }
@@ -69,48 +81,58 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 0;
+            margin-bottom: 24px;
+            padding: 12px 0;
         }
 
         .header h1 {
-            font-size: 28px;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
         }
 
         .theme-toggle {
-            background: var(--bg-card);
+            background: transparent;
             border: none;
-            color: var(--text-primary);
-            padding: 10px 15px;
-            border-radius: 12px;
+            color: var(--accent-primary);
+            padding: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 24px;
             transition: var(--transition);
-            box-shadow: var(--shadow);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .theme-toggle:hover {
-            transform: scale(1.05);
+        .theme-toggle:active {
+            background: var(--bg-card-light);
+            transform: scale(0.95);
         }
 
-        /* Navigation */
+        /* Navigation - iOS Style Tab Bar */
         .nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-top: 0.5px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-around;
-            padding: 15px;
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
             z-index: 1000;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="light"] .nav {
+            background: rgba(249, 249, 249, 0.8);
+            border-top: 0.5px solid rgba(0, 0, 0, 0.1);
         }
 
         @media (min-width: 769px) {
@@ -123,9 +145,15 @@
                 height: 100vh;
                 flex-direction: column;
                 justify-content: flex-start;
-                padding-top: 30px;
+                padding-top: 24px;
                 border-top: none;
-                border-right: 1px solid rgba(255, 255, 255, 0.1);
+                border-right: 0.5px solid rgba(255, 255, 255, 0.1);
+                background: rgba(28, 28, 30, 0.6);
+            }
+
+            [data-theme="light"] .nav {
+                background: rgba(249, 249, 249, 0.6);
+                border-right: 0.5px solid rgba(0, 0, 0, 0.1);
             }
         }
 
@@ -133,44 +161,65 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
-            padding: 10px;
-            border-radius: 12px;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: var(--transition);
-            color: var(--text-secondary);
+            color: var(--text-tertiary);
             text-decoration: none;
-            font-size: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            min-width: 60px;
+            position: relative;
         }
 
-        .nav-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--accent-primary);
+        .nav-item:active {
+            background: var(--bg-card-light);
+            transform: scale(0.95);
         }
 
         .nav-item.active {
-            background: var(--accent-gradient);
-            color: var(--text-primary);
+            color: var(--accent-primary);
         }
 
-        .nav-item i {
-            font-size: 20px;
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
         }
 
         /* Sections */
         .section {
             display: none;
-            animation: fadeIn 0.3s ease-in;
+            animation: fadeInUp 0.4s cubic-bezier(0.36, 0.66, 0.04, 1);
         }
 
         .section.active {
             display: block;
         }
 
-        @keyframes fadeIn {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -178,72 +227,138 @@
             }
         }
 
-        /* Cards */
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: var(--transition);
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        /* Cards - iOS Style com Animações */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-large);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            animation: slideInRight 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
+
+        [data-theme="light"] .card {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        @media (min-width: 769px) {
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            }
         }
 
         /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         @media (min-width: 769px) {
             .stats-grid {
                 grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
+                gap: 16px;
             }
         }
 
         .stat-card {
             background: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 20px;
+            border-radius: var(--border-radius-large);
+            padding: 20px 16px;
             text-align: center;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-card);
             position: relative;
             overflow: hidden;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            animation: scaleIn 0.4s cubic-bezier(0.36, 0.66, 0.04, 1);
+            animation-fill-mode: both;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--accent-gradient);
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.15s; }
+        .stat-card:nth-child(3) { animation-delay: 0.2s; }
+        .stat-card:nth-child(4) { animation-delay: 0.25s; }
+
+        [data-theme="light"] .stat-card {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card:active {
+            transform: scale(0.95);
         }
 
         .stat-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 28px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon svg {
+            width: 28px;
+            height: 28px;
         }
 
         .stat-value {
             font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+            color: var(--text-primary);
         }
 
         .stat-label {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-secondary);
+            font-weight: 500;
         }
 
         .stat-change {
@@ -259,7 +374,7 @@
             color: var(--error);
         }
 
-        /* Forms */
+        /* Forms - iOS Style */
         .form-group {
             margin-bottom: 20px;
         }
@@ -268,21 +383,31 @@
             display: block;
             margin-bottom: 8px;
             color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
         }
 
         .form-group input,
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             background: var(--bg-secondary);
-            border: 2px solid transparent;
+            border: none;
             border-radius: 12px;
             color: var(--text-primary);
-            font-size: 16px;
+            font-size: 17px;
             transition: var(--transition);
+            -webkit-appearance: none;
+            appearance: none;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] .form-group input,
+        [data-theme="light"] .form-group textarea,
+        [data-theme="light"] .form-group select {
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
         }
 
         .form-group input:focus,
@@ -290,6 +415,7 @@
         .form-group select:focus {
             outline: none;
             border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
         }
 
         .form-group input.valid {
@@ -323,48 +449,66 @@
             }
         }
 
-        /* Buttons */
+        /* Buttons - iOS Style */
         .btn {
-            padding: 12px 24px;
+            padding: 14px 24px;
             border: none;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
+            letter-spacing: -0.01em;
             cursor: pointer;
             transition: var(--transition);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 50px;
         }
 
         .btn-primary {
-            background: var(--accent-gradient);
-            color: var(--text-primary);
+            background: var(--accent-primary);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
 
-        .btn-primary:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        .btn-primary:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+
+        @media (min-width: 769px) {
+            .btn-primary:hover {
+                background: #0051D5;
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+            }
         }
 
         .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-card);
+            color: var(--accent-primary);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
         }
 
-        .btn-secondary:hover {
-            background: var(--bg-card);
+        [data-theme="light"] .btn-secondary {
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:active {
+            background: var(--bg-card-light);
+            transform: scale(0.97);
         }
 
         .btn-danger {
             background: var(--error);
-            color: var(--text-primary);
+            color: #ffffff;
         }
 
-        .btn-danger:hover {
-            background: #dc2626;
+        .btn-danger:active {
+            transform: scale(0.97);
+            opacity: 0.8;
         }
 
         .btn-full {
@@ -375,9 +519,14 @@
         /* Calendar */
         .calendar {
             background: var(--bg-card);
-            border-radius: var(--border-radius);
+            border-radius: var(--border-radius-large);
             padding: 20px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-card);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] .calendar {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
         }
 
         .calendar-header {
@@ -388,17 +537,24 @@
         }
 
         .calendar-nav {
-            background: var(--bg-secondary);
+            background: transparent;
             border: none;
-            color: var(--text-primary);
+            color: var(--accent-primary);
             padding: 8px 12px;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: var(--transition);
+            font-size: 17px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .calendar-nav:hover {
-            background: var(--accent-primary);
+        .calendar-nav:active {
+            background: var(--bg-card-light);
+            transform: scale(0.95);
         }
 
         .calendar-grid {
@@ -413,21 +569,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: var(--transition);
             position: relative;
             padding: 5px;
+            font-size: 15px;
+            font-weight: 500;
         }
 
-        .calendar-day:hover {
-            background: rgba(99, 102, 241, 0.2);
+        .calendar-day:active {
+            background: var(--bg-card-light);
+            transform: scale(0.9);
         }
 
         .calendar-day.today {
-            background: var(--accent-gradient);
-            color: var(--text-primary);
-            font-weight: bold;
+            background: var(--accent-primary);
+            color: #ffffff;
+            font-weight: 600;
         }
 
         .calendar-day.has-record::after {
@@ -457,18 +616,29 @@
         /* History List */
         .history-item {
             background: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 15px;
-            margin-bottom: 15px;
+            border-radius: var(--border-radius-large);
+            padding: 16px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-card);
             transition: var(--transition);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
         }
 
-        .history-item:hover {
-            transform: translateX(5px);
+        [data-theme="light"] .history-item {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .history-item:active {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+
+        .history-item.selected {
+            border-color: var(--accent-primary);
+            background: rgba(0, 122, 255, 0.1);
         }
 
         .history-date {
@@ -483,22 +653,29 @@
 
         .history-weight {
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
         .history-change {
             font-size: 12px;
             margin-top: 5px;
+            font-weight: 500;
         }
 
         /* Workout Cards */
         .workout-card {
             background: var(--bg-card);
-            border-radius: var(--border-radius);
+            border-radius: var(--border-radius-large);
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
             position: relative;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] .workout-card {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
         }
 
         .workout-header {
@@ -510,7 +687,8 @@
 
         .workout-name {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: -0.02em;
             margin-bottom: 5px;
         }
 
@@ -529,6 +707,138 @@
             font-size: 11px;
         }
 
+        .workout-day-label {
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        [data-theme="light"] .workout-day-label {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .workout-day-label:has(input:checked) {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        .workout-day-label input[type="checkbox"] {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .workout-day-label:active {
+            transform: scale(0.95);
+        }
+
+        #workout-days-selected {
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] #workout-days-selected {
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .selected-day-badge {
+            background: var(--accent-primary);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .selected-day-badge .remove-day {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .selected-day-badge .remove-day:hover {
+            opacity: 1;
+        }
+
+        /* Photo Comparison */
+        .photo-comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .photo-comparison-item {
+            text-align: center;
+        }
+
+        .photo-comparison-item img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .photo-comparison-item .date-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Registro View Modal */
+        .registro-view-photos {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .registro-view-photo {
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 3/4;
+        }
+
+        .registro-view-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .registro-view-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .registro-view-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .registro-view-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .registro-view-value {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
         .workout-actions {
             display: flex;
             gap: 10px;
@@ -539,16 +849,104 @@
         }
 
         .exercise-item {
-            padding: 10px;
+            padding: 16px;
             background: var(--bg-secondary);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            animation: slideInRight 0.3s ease-out;
         }
 
-        /* Modals */
+        [data-theme="light"] .exercise-item {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .exercise-image-upload {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            background: var(--bg-card);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="light"] .exercise-image-upload {
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .exercise-image-upload:active {
+            transform: scale(0.98);
+            border-color: var(--accent-primary);
+        }
+
+        .exercise-image-upload.has-image {
+            border: none;
+            padding: 0;
+        }
+
+        .exercise-image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .exercise-image-upload.has-image .exercise-image-preview {
+            display: block;
+        }
+
+        .exercise-image-upload.has-image .exercise-image-icon,
+        .exercise-image-upload.has-image .exercise-image-label {
+            display: none;
+        }
+
+        .exercise-image-icon {
+            width: 32px;
+            height: 32px;
+            opacity: 0.6;
+            margin-bottom: 8px;
+        }
+
+        .exercise-image-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .exercise-image-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .exercise-image-upload.has-image:hover .exercise-image-remove {
+            opacity: 1;
+        }
+
+        /* Modals - iOS Style */
         .modal {
             display: none;
             position: fixed;
@@ -556,8 +954,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -570,20 +969,25 @@
 
         .modal-content {
             background: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 30px;
+            border-radius: var(--border-radius-large);
+            padding: 24px;
             max-width: 500px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            animation: modalSlideIn 0.3s ease-out;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlideIn 0.35s cubic-bezier(0.36, 0.66, 0.04, 1);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] .modal-content {
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
         }
 
         @keyframes modalSlideIn {
             from {
                 opacity: 0;
-                transform: scale(0.9) translateY(20px);
+                transform: scale(0.95) translateY(10px);
             }
             to {
                 opacity: 1;
@@ -598,26 +1002,45 @@
             margin-bottom: 20px;
         }
 
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-            transition: var(--transition);
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        .modal-close:hover {
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .modal-close:active {
+            background: var(--bg-card-light);
             color: var(--text-primary);
+            transform: scale(0.95);
         }
 
         /* Chart */
         .chart-container {
             background: var(--bg-card);
-            border-radius: var(--border-radius);
+            border-radius: var(--border-radius-large);
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] .chart-container {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
         }
 
         .chart-controls {
@@ -629,16 +1052,28 @@
 
         .chart-period {
             padding: 8px 16px;
-            background: var(--bg-secondary);
-            border: none;
+            background: transparent;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            color: var(--text-primary);
+            color: var(--text-secondary);
             cursor: pointer;
             transition: var(--transition);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        [data-theme="light"] .chart-period {
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-period:active {
+            transform: scale(0.95);
         }
 
         .chart-period.active {
-            background: var(--accent-gradient);
+            background: var(--accent-primary);
+            color: #ffffff;
+            border-color: var(--accent-primary);
         }
 
         /* Skeleton Loading */
@@ -673,73 +1108,234 @@
         .empty-state-icon {
             font-size: 64px;
             margin-bottom: 20px;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .empty-state-title {
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
             color: var(--text-primary);
         }
 
         .empty-state-text {
-            font-size: 16px;
+            font-size: 15px;
             margin-bottom: 30px;
+            color: var(--text-secondary);
         }
 
-        /* Photo Upload */
+        /* Photo Upload - Minimalista */
         .photo-upload {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .photo-upload-item {
             position: relative;
         }
 
-        .photo-preview {
+        .photo-upload-box {
             width: 100%;
             aspect-ratio: 3/4;
-            object-fit: cover;
-            border-radius: 12px;
+            border-radius: var(--border-radius-large);
             background: var(--bg-secondary);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .photo-upload-btn {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 8px 16px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
+        [data-theme="light"] .photo-upload-box {
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .photo-upload-box:active {
+            transform: scale(0.98);
+            border-color: var(--accent-primary);
+        }
+
+        .photo-upload-box.has-image {
             border: none;
-            border-radius: 8px;
+            padding: 0;
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius-large);
+            display: none;
+        }
+
+        .photo-upload-box.has-image .photo-preview {
+            display: block;
+        }
+
+        .photo-upload-box.has-image .photo-upload-icon,
+        .photo-upload-box.has-image .photo-upload-label {
+            display: none;
+        }
+
+        .photo-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .photo-upload-box:active .photo-upload-icon {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        .photo-upload-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .photo-upload-type {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .photo-remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .photo-upload-box.has-image:hover .photo-remove-btn {
+            opacity: 1;
+        }
+
+        .photo-remove-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Photo Options Modal */
+        .photo-options-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            z-index: 3000;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.36, 0.66, 0.04, 1);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            max-height: 50vh;
+        }
+
+        .photo-options-modal.active {
+            transform: translateY(0);
+        }
+
+        .photo-options-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: 2999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .photo-options-backdrop.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .photo-option-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .photo-option-btn:active {
+            transform: scale(0.98);
+            background: var(--bg-card-light);
+        }
+
+        .photo-option-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .photo-option-cancel {
+            background: transparent;
+            color: var(--error);
+            margin-top: 8px;
         }
 
         /* Insights */
         .insight-card {
             background: var(--bg-card);
-            border-radius: var(--border-radius);
+            border-radius: var(--border-radius-large);
             padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--accent-primary);
-            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--accent-primary);
+            box-shadow: var(--shadow-card);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] .insight-card {
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
         }
 
         .insight-title {
             font-weight: 600;
+            letter-spacing: -0.01em;
             margin-bottom: 8px;
             color: var(--accent-primary);
+            font-size: 15px;
         }
 
         .insight-text {
             color: var(--text-secondary);
             font-size: 14px;
+            line-height: 1.5;
         }
 
         /* Streak */
@@ -747,11 +1343,14 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: var(--accent-gradient);
-            padding: 10px 20px;
+            background: var(--accent-primary);
+            padding: 12px 20px;
             border-radius: 20px;
             font-weight: 600;
+            font-size: 15px;
             margin-bottom: 20px;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
 
         /* Progress Comparison */
@@ -803,7 +1402,7 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 24px;
+                font-size: 28px;
             }
 
             .stat-value {
@@ -812,6 +1411,8 @@
 
             .modal-content {
                 padding: 20px;
+                border-radius: 20px 20px 0 0;
+                max-height: 85vh;
             }
         }
 
@@ -831,35 +1432,471 @@
         .hidden {
             display: none;
         }
+
+        /* Onboarding */
+        .onboarding {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .onboarding.hidden {
+            display: none;
+        }
+
+        .onboarding-slide {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: slideIn 0.4s ease;
+        }
+
+        .onboarding-slide.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .onboarding-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        .onboarding-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .onboarding-text {
+            font-size: 17px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 40px;
+        }
+
+        .onboarding-progress {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .onboarding-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
+            transition: all 0.3s ease;
+        }
+
+        .onboarding-dot.active {
+            background: var(--accent-primary);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Achievements */
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--success);
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 8px;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .achievement-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .achievement-modal.active {
+            display: flex;
+        }
+
+        .achievement-content {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-large);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: scaleIn 0.3s ease;
+        }
+
+        .achievement-icon-large {
+            font-size: 100px;
+            margin-bottom: 20px;
+        }
+
+        /* Calendar Heatmap */
+        .calendar-day.has-record {
+            background: var(--success);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .calendar-day.has-workout {
+            position: relative;
+        }
+
+        .calendar-day.has-workout::after {
+            content: '💪';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 12px;
+        }
+
+        .calendar-day.has-photo::after {
+            content: '📷';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 10px;
+        }
+
+        .calendar-day.weight-up {
+            border-bottom: 3px solid var(--error);
+        }
+
+        .calendar-day.weight-down {
+            border-bottom: 3px solid var(--success);
+        }
+
+        /* Chart Improvements */
+        .chart-meta-line {
+            stroke: var(--accent-primary);
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            opacity: 0.6;
+        }
+
+        .chart-achievement-marker {
+            fill: var(--success);
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+
+        .chart-motivational-text {
+            text-align: center;
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .chart-motivational-text.positive {
+            color: var(--success);
+            background: rgba(52, 199, 89, 0.1);
+        }
+
+        .chart-motivational-text.warning {
+            color: var(--warning);
+            background: rgba(255, 149, 0, 0.1);
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        a:focus-visible {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* Before/After Section */
+        .before-after-section {
+            margin-bottom: 30px;
+        }
+
+        .before-after-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .before-after-item {
+            text-align: center;
+        }
+
+        .before-after-item img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .before-after-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .timeline-photos {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scroll-snap-type: x mandatory;
+        }
+
+        .timeline-photo {
+            flex: 0 0 120px;
+            scroll-snap-align: start;
+        }
+
+        .timeline-photo img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .timeline-photo .date {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <!-- Onboarding -->
+    <div id="onboarding" class="onboarding">
+        <!-- Slide 1: Boas-vindas -->
+        <div class="onboarding-slide active" data-slide="1">
+            <div class="onboarding-icon">💪</div>
+            <h1 class="onboarding-title">Bem-vindo ao FitTrack Pro</h1>
+            <p class="onboarding-text">
+                Aqui você acompanha peso, fotos, sono e progresso visual de forma simples e motivadora.
+            </p>
+            <div class="onboarding-progress">
+                <div class="onboarding-dot active"></div>
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot"></div>
+            </div>
+            <button class="btn btn-primary" onclick="nextOnboardingSlide()">Começar</button>
+        </div>
+
+        <!-- Slide 2: Perfil básico -->
+        <div class="onboarding-slide" data-slide="2">
+            <div class="onboarding-icon">👤</div>
+            <h1 class="onboarding-title">Configure seu Perfil</h1>
+            <div style="width: 100%; max-width: 300px; margin: 0 auto;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="onboarding-nome">Nome (opcional)</label>
+                    <input type="text" id="onboarding-nome" placeholder="Seu nome" style="width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="onboarding-peso-atual">Peso Atual (kg)</label>
+                    <input type="number" id="onboarding-peso-atual" step="0.1" min="0" placeholder="Ex: 80" style="width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="onboarding-peso-meta">Peso Meta (kg)</label>
+                    <input type="number" id="onboarding-peso-meta" step="0.1" min="0" placeholder="Ex: 70" style="width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="onboarding-prazo-meta">Prazo da Meta (meses)</label>
+                    <input type="number" id="onboarding-prazo-meta" min="1" placeholder="Ex: 3" style="width: 100%;">
+                </div>
+            </div>
+            <div class="onboarding-progress">
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot active"></div>
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot"></div>
+            </div>
+            <div style="display: flex; gap: 10px; width: 100%; max-width: 300px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="prevOnboardingSlide()">Voltar</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="nextOnboardingSlide()">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Slide 3: Preferências -->
+        <div class="onboarding-slide" data-slide="3">
+            <div class="onboarding-icon">⚙️</div>
+            <h1 class="onboarding-title">Suas Preferências</h1>
+            <div style="width: 100%; max-width: 300px; margin: 0 auto; text-align: left;">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <input type="checkbox" id="onboarding-tema-escuro" checked style="width: 20px; height: 20px;">
+                        <span>Tema Escuro</span>
+                    </label>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <input type="checkbox" id="onboarding-lembrete" style="width: 20px; height: 20px;">
+                        <span>Ativar Lembrete Diário</span>
+                    </label>
+                </div>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="onboarding-horario">Horário do Lembrete</label>
+                    <input type="time" id="onboarding-horario" value="08:00" style="width: 100%;">
+                </div>
+            </div>
+            <div class="onboarding-progress">
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot active"></div>
+                <div class="onboarding-dot"></div>
+            </div>
+            <div style="display: flex; gap: 10px; width: 100%; max-width: 300px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="prevOnboardingSlide()">Voltar</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="nextOnboardingSlide()">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Slide 4: Finalização -->
+        <div class="onboarding-slide" data-slide="4">
+            <div class="onboarding-icon">🎉</div>
+            <h1 class="onboarding-title">Tudo Pronto!</h1>
+            <p class="onboarding-text">
+                Agora você está pronto para começar sua jornada de transformação!
+            </p>
+            <div class="onboarding-progress">
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot"></div>
+                <div class="onboarding-dot active"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px;">
+                <button class="btn btn-primary btn-full" onclick="completeOnboarding('register')">
+                    Registrar Primeiro Peso
+                </button>
+                <button class="btn btn-secondary btn-full" onclick="completeOnboarding('dashboard')">
+                    Ir para o Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Modal -->
+    <div id="achievement-modal" class="achievement-modal">
+        <div class="achievement-content">
+            <div class="achievement-icon-large" id="achievement-icon">🏆</div>
+            <h2 id="achievement-title" style="font-size: 24px; margin-bottom: 12px;">Conquista Desbloqueada!</h2>
+            <p id="achievement-description" style="color: var(--text-secondary); margin-bottom: 24px;"></p>
+            <button class="btn btn-primary btn-full" onclick="closeAchievementModal()">Continuar</button>
+        </div>
+    </div>
+
     <div class="container">
         <header class="header">
-            <h1>💪 FitTrack Pro</h1>
+            <h1>FitTrack Pro</h1>
             <button class="theme-toggle" data-action="toggle-theme" aria-label="Alternar tema">🌓</button>
         </header>
 
         <!-- Navigation -->
-        <nav class="nav">
-            <a href="#" class="nav-item active" data-section="dashboard">
-                <i>📊</i>
+        <nav class="nav" role="navigation" aria-label="Navegação principal">
+            <a href="#" class="nav-item active" data-section="dashboard" aria-label="Dashboard" role="button" tabindex="0">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
                 <span>Dashboard</span>
             </a>
             <a href="#" class="nav-item" data-section="registro">
-                <i>➕</i>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 <span>Registro</span>
             </a>
             <a href="#" class="nav-item" data-section="historico">
-                <i>📅</i>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
                 <span>Histórico</span>
             </a>
             <a href="#" class="nav-item" data-section="treinos">
-                <i>🏋️</i>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6.5 6.5h11v11h-11z"></path>
+                    <path d="M6.5 17.5L12 12l5.5 5.5"></path>
+                    <path d="M12 12L6.5 6.5l5.5 5.5"></path>
+                </svg>
                 <span>Treinos</span>
             </a>
             <a href="#" class="nav-item" data-section="configuracoes">
-                <i>⚙️</i>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"></path>
+                </svg>
                 <span>Config</span>
             </a>
         </nav>
@@ -867,7 +1904,10 @@
         <!-- Dashboard Section -->
         <section id="dashboard" class="section active">
             <div class="streak-badge" id="streak-badge">
-                🔥 <span id="streak-count">0</span> dias consecutivos
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                </svg>
+                <span id="streak-count">0</span> dias consecutivos
             </div>
 
             <div class="stats-grid" id="stats-grid">
@@ -893,6 +1933,13 @@
                 <canvas id="weight-chart" width="400" height="200"></canvas>
             </div>
 
+            <div class="card before-after-section" id="before-after-container">
+                <h2 style="margin-bottom: 15px;">Evolução Visual</h2>
+                <div id="before-after-content">
+                    <!-- Conteúdo será renderizado aqui -->
+                </div>
+            </div>
+
             <div class="card" id="progress-comparison-container">
                 <h2 style="margin-bottom: 15px;">Comparação de Progresso</h2>
                 <div id="progress-comparison"></div>
@@ -904,11 +1951,6 @@
             <div class="card">
                 <h2 style="margin-bottom: 20px;">Novo Registro</h2>
                 <form id="registro-form">
-                    <div class="form-group">
-                        <label for="registro-data">Data *</label>
-                        <input type="date" id="registro-data" required>
-                    </div>
-
                     <div class="form-group">
                         <label for="registro-peso">Peso (kg) *</label>
                         <input type="number" id="registro-peso" step="0.1" min="0" required>
@@ -934,28 +1976,75 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="registro-observacao">Observações</label>
-                        <textarea id="registro-observacao" rows="3"></textarea>
-                    </div>
-
                     <div class="photo-upload">
                         <div class="photo-upload-item">
-                            <label>Foto Frente</label>
-                            <img id="preview-frente" class="photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E" alt="Preview frente">
-                            <input type="file" id="foto-frente" accept="image/*" style="display: none;">
-                            <button type="button" class="photo-upload-btn" onclick="document.getElementById('foto-frente').click()">Adicionar Foto</button>
+                            <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Frente</label>
+                            <div class="photo-upload-box" data-photo-type="frente" onclick="openPhotoOptions('frente')">
+                                <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                                <div class="photo-upload-label">Adicionar Foto</div>
+                                <div class="photo-upload-type">Toque para escolher</div>
+                                <img id="preview-frente" class="photo-preview" alt="Preview frente">
+                                <button type="button" class="photo-remove-btn" onclick="event.stopPropagation(); removePhoto('frente')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <input type="file" id="foto-frente" accept="image/*" capture="environment" style="display: none;">
                         </div>
                         <div class="photo-upload-item">
-                            <label>Foto Lado</label>
-                            <img id="preview-lado" class="photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E" alt="Preview lado">
-                            <input type="file" id="foto-lado" accept="image/*" style="display: none;">
-                            <button type="button" class="photo-upload-btn" onclick="document.getElementById('foto-lado').click()">Adicionar Foto</button>
+                            <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Lado</label>
+                            <div class="photo-upload-box" data-photo-type="lado" onclick="openPhotoOptions('lado')">
+                                <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                                <div class="photo-upload-label">Adicionar Foto</div>
+                                <div class="photo-upload-type">Toque para escolher</div>
+                                <img id="preview-lado" class="photo-preview" alt="Preview lado">
+                                <button type="button" class="photo-remove-btn" onclick="event.stopPropagation(); removePhoto('lado')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <input type="file" id="foto-lado" accept="image/*" capture="environment" style="display: none;">
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-full">
-                        💾 Salvar Registro
+                    <!-- Photo Options Modal -->
+                    <div class="photo-options-backdrop" id="photo-options-backdrop" onclick="closePhotoOptions()"></div>
+                    <div class="photo-options-modal" id="photo-options-modal">
+                        <button class="photo-option-btn" onclick="selectPhotoFromGallery()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            Escolher da Galeria
+                        </button>
+                        <button class="photo-option-btn" onclick="takePhoto()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                            Tirar Foto
+                        </button>
+                        <button class="photo-option-btn photo-option-cancel" onclick="closePhotoOptions()">Cancelar</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full" aria-label="Salvar registro de peso">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Salvar Registro
                     </button>
                 </form>
             </div>
@@ -1006,13 +2095,18 @@
 
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="config-peso-atual">Peso Atual (kg)</label>
+                            <input type="number" id="config-peso-atual" step="0.1" min="0">
+                        </div>
+                        <div class="form-group">
                             <label for="config-peso-meta">Peso Meta (kg)</label>
                             <input type="number" id="config-peso-meta" step="0.1" min="0">
                         </div>
-                        <div class="form-group">
-                            <label for="config-prazo-meta">Prazo da Meta (meses)</label>
-                            <input type="number" id="config-prazo-meta" min="1">
-                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="config-prazo-meta">Prazo da Meta (meses)</label>
+                        <input type="number" id="config-prazo-meta" min="1">
                     </div>
 
                     <div class="form-group">
@@ -1035,7 +2129,12 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-full">
-                        💾 Salvar Configurações
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Salvar Configurações
                     </button>
                 </form>
             </div>
@@ -1046,7 +2145,11 @@
                     📥 Exportar Dados
                 </button>
                 <button class="btn btn-danger btn-full" data-action="clear-data">
-                    🗑️ Limpar Todos os Dados
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Limpar Todos os Dados
                 </button>
             </div>
         </section>
@@ -1056,7 +2159,7 @@
     <div id="modal-success" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>✅ Sucesso!</h2>
+                <h2>Sucesso!</h2>
                 <button class="modal-close" data-action="close-modal">&times;</button>
             </div>
             <p id="modal-success-message"></p>
@@ -1082,21 +2185,26 @@
                 </div>
                 <div class="form-group">
                     <label>Dias da Semana</label>
+                    <div id="workout-days-selected" style="margin-bottom: 10px; min-height: 30px; display: flex; gap: 8px; flex-wrap: wrap;"></div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <label><input type="checkbox" value="Dom" class="workout-day"> Dom</label>
-                        <label><input type="checkbox" value="Seg" class="workout-day"> Seg</label>
-                        <label><input type="checkbox" value="Ter" class="workout-day"> Ter</label>
-                        <label><input type="checkbox" value="Qua" class="workout-day"> Qua</label>
-                        <label><input type="checkbox" value="Qui" class="workout-day"> Qui</label>
-                        <label><input type="checkbox" value="Sex" class="workout-day"> Sex</label>
-                        <label><input type="checkbox" value="Sáb" class="workout-day"> Sáb</label>
+                        <label class="workout-day-label"><input type="checkbox" value="Dom" class="workout-day"> Dom</label>
+                        <label class="workout-day-label"><input type="checkbox" value="Seg" class="workout-day"> Seg</label>
+                        <label class="workout-day-label"><input type="checkbox" value="Ter" class="workout-day"> Ter</label>
+                        <label class="workout-day-label"><input type="checkbox" value="Qua" class="workout-day"> Qua</label>
+                        <label class="workout-day-label"><input type="checkbox" value="Qui" class="workout-day"> Qui</label>
+                        <label class="workout-day-label"><input type="checkbox" value="Sex" class="workout-day"> Sex</label>
+                        <label class="workout-day-label"><input type="checkbox" value="Sáb" class="workout-day"> Sáb</label>
                     </div>
                 </div>
                 <div id="workout-exercises-container">
                     <!-- Exercises will be added here -->
                 </div>
                 <button type="button" class="btn btn-secondary btn-full mb-20" data-action="add-exercise">
-                    ➕ Adicionar Exercício
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Adicionar Exercício
                 </button>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
@@ -1116,8 +2224,124 @@
                 <!-- Workout execution will be rendered here -->
             </div>
             <button class="btn btn-primary btn-full mt-20" data-action="finish-workout">
-                ✅ Finalizar Treino
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Finalizar Treino
             </button>
+        </div>
+    </div>
+
+    <!-- Modal de Visualização/Edição de Registro -->
+    <div id="modal-registro-view" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-registro-date">Registro</h2>
+                <button class="modal-close" data-action="close-modal" aria-label="Fechar">&times;</button>
+            </div>
+            <div id="modal-registro-content">
+                <!-- Conteúdo do registro será renderizado aqui -->
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" style="flex: 1;" data-action="edit-registro-from-modal">Editar</button>
+                <button class="btn btn-secondary" data-action="close-modal" style="flex: 1;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Registro (do Calendário) -->
+    <div id="modal-add-registro" class="modal">
+        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 id="modal-add-registro-date">Adicionar Registro</h2>
+                <button class="modal-close" data-action="close-modal" aria-label="Fechar">&times;</button>
+            </div>
+            <form id="modal-add-registro-form">
+                <input type="hidden" id="modal-add-registro-data">
+                
+                <div class="form-group">
+                    <label for="modal-add-registro-peso">Peso (kg) *</label>
+                    <input type="number" id="modal-add-registro-peso" step="0.1" min="0" required>
+                    <div class="error-message" id="modal-peso-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="modal-add-registro-cintura">Circunferência (cm)</label>
+                    <input type="number" id="modal-add-registro-cintura" step="0.1" min="0">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modal-add-registro-agua">Água (litros)</label>
+                        <input type="number" id="modal-add-registro-agua" step="0.1" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-add-registro-sono">Sono (horas)</label>
+                        <input type="number" id="modal-add-registro-sono" step="0.5" min="0" max="24">
+                        <div class="error-message" id="modal-sono-error"></div>
+                    </div>
+                </div>
+
+                <div class="photo-upload">
+                    <div class="photo-upload-item">
+                        <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Frente</label>
+                        <div class="photo-upload-box" data-photo-type="frente-modal" onclick="openPhotoOptionsModal('frente-modal')">
+                            <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                            <div class="photo-upload-label">Adicionar Foto</div>
+                            <div class="photo-upload-type">Toque para escolher</div>
+                            <img id="preview-frente-modal" class="photo-preview" alt="Preview frente">
+                            <button type="button" class="photo-remove-btn" onclick="event.stopPropagation(); removePhotoModal('frente-modal')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <input type="file" id="foto-frente-modal" accept="image/*" capture="environment" style="display: none;">
+                    </div>
+                    <div class="photo-upload-item">
+                        <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Lado</label>
+                        <div class="photo-upload-box" data-photo-type="lado-modal" onclick="openPhotoOptionsModal('lado-modal')">
+                            <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                            <div class="photo-upload-label">Adicionar Foto</div>
+                            <div class="photo-upload-type">Toque para escolher</div>
+                            <img id="preview-lado-modal" class="photo-preview" alt="Preview lado">
+                            <button type="button" class="photo-remove-btn" onclick="event.stopPropagation(); removePhotoModal('lado-modal')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <input type="file" id="foto-lado-modal" accept="image/*" capture="environment" style="display: none;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-action="close-modal" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Comparação de Fotos -->
+    <div id="modal-photo-comparison" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Comparação de Fotos</h2>
+                <button class="modal-close" data-action="close-modal">&times;</button>
+            </div>
+            <div id="photo-comparison-content">
+                <!-- Comparação será renderizada aqui -->
+            </div>
+            <button class="btn btn-secondary btn-full mt-20" data-action="close-modal">Fechar</button>
         </div>
     </div>
 

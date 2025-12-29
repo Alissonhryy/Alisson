@@ -14,6 +14,7 @@ const CONFIG = {
     },
     defaultConfig: {
         nome: '',
+        pesoAtual: null,
         pesoMeta: null,
         prazoMeta: null,
         lembreteAtivo: false,
@@ -34,6 +35,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function initializeApp() {
+    // Verificar onboarding - só aparece no primeiro acesso
+    const onboardingComplete = localStorage.getItem('onboarding_complete');
+    
+    if (!onboardingComplete || onboardingComplete !== 'true') {
+        // Mostrar onboarding apenas se não foi completado
+        showOnboarding();
+        return; // Não carregar app ainda
+    }
+    
+    // Esconder onboarding se já foi completado
+    const onboarding = document.getElementById('onboarding');
+    if (onboarding) {
+        onboarding.classList.add('hidden');
+    }
+    
     // Migrar dados se necessário
     migrateData();
     
@@ -57,6 +73,12 @@ async function initializeApp() {
     
     // Solicitar permissão de notificações
     requestNotificationPermission();
+    
+    // Setup notificações
+    setupNotifications();
+    
+    // Verificar achievements
+    checkAchievements();
 }
 
 // ==================== INDEXEDDB ====================
@@ -270,13 +292,39 @@ function setupEventListeners() {
     // Formulário de registro
     document.getElementById('registro-form').addEventListener('submit', handleRegistroSubmit);
     
+    // Formulário de adicionar registro do modal
+    const modalAddForm = document.getElementById('modal-add-registro-form');
+    if (modalAddForm) {
+        modalAddForm.addEventListener('submit', handleModalAddRegistroSubmit);
+    }
+    
     // Validação em tempo real
     document.getElementById('registro-peso').addEventListener('blur', validatePeso);
     document.getElementById('registro-sono').addEventListener('blur', validateSono);
     
+    // Validação no modal
+    const modalPeso = document.getElementById('modal-add-registro-peso');
+    const modalSono = document.getElementById('modal-add-registro-sono');
+    if (modalPeso) {
+        modalPeso.addEventListener('blur', () => validatePesoModal());
+    }
+    if (modalSono) {
+        modalSono.addEventListener('blur', () => validateSonoModal());
+    }
+    
     // Upload de fotos
     document.getElementById('foto-frente').addEventListener('change', (e) => handlePhotoUpload(e, 'frente'));
     document.getElementById('foto-lado').addEventListener('change', (e) => handlePhotoUpload(e, 'lado'));
+    
+    // Upload de fotos do modal
+    const fotoFrenteModal = document.getElementById('foto-frente-modal');
+    const fotoLadoModal = document.getElementById('foto-lado-modal');
+    if (fotoFrenteModal) {
+        fotoFrenteModal.addEventListener('change', (e) => handlePhotoUploadModal(e, 'frente-modal'));
+    }
+    if (fotoLadoModal) {
+        fotoLadoModal.addEventListener('change', (e) => handlePhotoUploadModal(e, 'lado-modal'));
+    }
     
     // Gráfico - períodos
     document.querySelectorAll('.chart-period').forEach(btn => {
@@ -312,6 +360,14 @@ function setupEventListeners() {
     
     // Editor de treino
     document.getElementById('workout-editor-form').addEventListener('submit', handleWorkoutEditorSubmit);
+    
+    // Atualizar visualização dos dias selecionados
+    document.querySelectorAll('.workout-day').forEach(cb => {
+        cb.addEventListener('change', updateSelectedDaysDisplay);
+    });
+    
+    // Editar registro do modal
+    document.querySelector('[data-action="edit-registro-from-modal"]')?.addEventListener('click', editRegistroFromModal);
 }
 
 function showSection(sectionId, navItem) {
@@ -355,6 +411,7 @@ function loadConfig() {
     
     if (document.getElementById('config-nome')) {
         document.getElementById('config-nome').value = config.nome || '';
+        document.getElementById('config-peso-atual').value = config.pesoAtual || '';
         document.getElementById('config-peso-meta').value = config.pesoMeta || '';
         document.getElementById('config-prazo-meta').value = config.prazoMeta || '';
         document.getElementById('config-lembrete-ativo').checked = config.lembreteAtivo || false;
@@ -375,6 +432,8 @@ function loadDashboard() {
     renderChart(30);
     renderProgressComparison(registros);
     renderStreak(registros);
+    renderBeforeAfter();
+    checkPendingNotifications();
 }
 
 function renderStats(registros, config) {
@@ -395,7 +454,12 @@ function renderStats(registros, config) {
     
     statsGrid.innerHTML = `
         <div class="stat-card">
-            <div class="stat-icon">⚖️</div>
+            <div class="stat-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M2 12h20"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </div>
             <div class="stat-value">${pesoAtual ? pesoAtual.toFixed(1) : '--'} kg</div>
             <div class="stat-label">Peso Atual</div>
             ${mudancaPeso ? `
@@ -405,17 +469,35 @@ function renderStats(registros, config) {
             ` : ''}
         </div>
         <div class="stat-card">
-            <div class="stat-icon">🎯</div>
+            <div class="stat-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="6"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+            </div>
             <div class="stat-value">${pesoMeta ? pesoMeta.toFixed(1) : '--'} kg</div>
             <div class="stat-label">Meta de Peso</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📉</div>
+            <div class="stat-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                    <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+            </div>
             <div class="stat-value">${totalPerdido} kg</div>
             <div class="stat-label">Total Perdido</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📊</div>
+            <div class="stat-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+            </div>
             <div class="stat-value">${totalRegistros}</div>
             <div class="stat-label">Total de Registros</div>
         </div>
@@ -757,15 +839,18 @@ function renderStreak(registros) {
 // ==================== REGISTRO ====================
 
 function loadRegistro() {
-    const hoje = new Date().toISOString().split('T')[0];
-    document.getElementById('registro-data').value = hoje;
     renderCalendar();
+    // Limpar formulário para novo registro de hoje
+    clearRegistroForm();
 }
 
 async function handleRegistroSubmit(e) {
     e.preventDefault();
     
-    const data = document.getElementById('registro-data').value;
+    // Verificar se está editando registro antigo
+    const editDate = document.getElementById('registro-form').getAttribute('data-edit-date');
+    const data = editDate || new Date().toISOString().split('T')[0];
+    
     const peso = parseFloat(document.getElementById('registro-peso').value);
     const cintura = document.getElementById('registro-cintura').value ? 
         parseFloat(document.getElementById('registro-cintura').value) : null;
@@ -773,7 +858,6 @@ async function handleRegistroSubmit(e) {
         parseFloat(document.getElementById('registro-agua').value) : null;
     const sono = document.getElementById('registro-sono').value ? 
         parseFloat(document.getElementById('registro-sono').value) : null;
-    const observacao = document.getElementById('registro-observacao').value;
     
     // Validações
     const validacaoPeso = validatePeso();
@@ -797,8 +881,7 @@ async function handleRegistroSubmit(e) {
         peso: peso,
         cintura: cintura,
         agua: agua,
-        sono: sono,
-        observacao: observacao
+        sono: sono
     };
     
     // Salvar fotos
@@ -840,13 +923,20 @@ async function handleRegistroSubmit(e) {
     saveRegistros(registros);
     
     // Limpar formulário
-    document.getElementById('registro-form').reset();
-    document.getElementById('registro-data').value = new Date().toISOString().split('T')[0];
-    document.getElementById('preview-frente').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E";
-    document.getElementById('preview-lado').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E";
+    clearRegistroForm();
+    document.getElementById('registro-form').removeAttribute('data-edit-date');
+    
+    // Verificar achievements
+    checkAchievements();
     
     // Feedback
-    showModal('modal-success', 'Registro salvo com sucesso! 💪');
+    showModal('modal-success', 'Registro salvo com sucesso!');
+    
+    // Atualizar calendário
+    renderCalendar();
+    
+    // Atualizar dashboard
+    loadDashboard();
     
     // Vibração (se suportado)
     if (navigator.vibrate) {
@@ -861,7 +951,11 @@ async function handleRegistroSubmit(e) {
 function validatePeso() {
     const pesoInput = document.getElementById('registro-peso');
     const peso = parseFloat(pesoInput.value);
-    const data = document.getElementById('registro-data').value;
+    
+    // Verificar se está editando registro antigo
+    const editDate = document.getElementById('registro-form').getAttribute('data-edit-date');
+    const data = editDate || new Date().toISOString().split('T')[0];
+    
     const registros = getRegistros();
     
     // Encontrar último registro antes desta data
@@ -949,62 +1043,7 @@ function renderCalendar() {
     renderCalendarMonth(container, currentCalendarMonth, currentCalendarYear);
 }
 
-function renderCalendarMonth(container, mes, ano) {
-    const registros = getRegistros();
-    const checkins = getTreinoCheckins();
-    const hoje = new Date().toISOString().split('T')[0];
-    
-    const primeiroDia = new Date(ano, mes, 1);
-    const ultimoDia = new Date(ano, mes + 1, 0);
-    const diasNoMes = ultimoDia.getDate();
-    const diaSemanaInicio = primeiroDia.getDay();
-    
-    const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    const nomesDias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    
-    let html = `
-        <div class="calendar-header">
-            <button class="calendar-nav" onclick="navigateCalendar(-1)">←</button>
-            <h3>${nomesMeses[mes]} ${ano}</h3>
-            <button class="calendar-nav" onclick="navigateCalendar(1)">→</button>
-        </div>
-        <div class="calendar-grid">
-    `;
-    
-    // Dias da semana
-    nomesDias.forEach(dia => {
-        html += `<div class="calendar-day-name">${dia}</div>`;
-    });
-    
-    // Espaços vazios antes do primeiro dia
-    for (let i = 0; i < diaSemanaInicio; i++) {
-        html += `<div class="calendar-day"></div>`;
-    }
-    
-    // Dias do mês
-    for (let dia = 1; dia <= diasNoMes; dia++) {
-        const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-        const temRegistro = registros.some(r => r.data === dataStr);
-        const temTreino = checkins.some(c => c.data === dataStr && c.concluido);
-        const eHoje = dataStr === hoje;
-        
-        let classes = 'calendar-day';
-        if (eHoje) classes += ' today';
-        if (temRegistro) classes += ' has-record';
-        if (temTreino) classes += ' has-workout';
-        
-        html += `
-            <div class="${classes}" data-date="${dataStr}" onclick="selectCalendarDate('${dataStr}')">
-                ${dia}
-            </div>
-        `;
-    }
-    
-    html += '</div>';
-    
-    container.innerHTML = html;
-}
+// Função renderCalendarMonth movida para seção de melhorias no calendário
 
 window.navigateCalendar = function(direction) {
     currentCalendarMonth += direction;
@@ -1019,49 +1058,153 @@ window.navigateCalendar = function(direction) {
 };
 
 window.selectCalendarDate = async function(dataStr) {
-    document.getElementById('registro-data').value = dataStr;
-    
-    // Carregar dados existentes se houver
     const registros = getRegistros();
     const registro = registros.find(r => r.data === dataStr);
     
     if (registro) {
-        document.getElementById('registro-peso').value = registro.peso || '';
-        document.getElementById('registro-cintura').value = registro.cintura || '';
-        document.getElementById('registro-agua').value = registro.agua || '';
-        document.getElementById('registro-sono').value = registro.sono || '';
-        document.getElementById('registro-observacao').value = registro.observacao || '';
-        
-        // Carregar fotos do registro ou do IndexedDB
-        if (registro.fotoFrente) {
-            document.getElementById('preview-frente').src = registro.fotoFrente;
-        } else {
-            const fotoFrenteDB = await getPhotoFromDB('frente', dataStr);
-            if (fotoFrenteDB) {
-                document.getElementById('preview-frente').src = fotoFrenteDB;
-            }
-        }
-        
-        if (registro.fotoLado) {
-            document.getElementById('preview-lado').src = registro.fotoLado;
-        } else {
-            const fotoLadoDB = await getPhotoFromDB('lado', dataStr);
-            if (fotoLadoDB) {
-                document.getElementById('preview-lado').src = fotoLadoDB;
-            }
-        }
+        // Mostrar modal de visualização/edição
+        showRegistroModal(dataStr, registro);
     } else {
-        // Limpar previews se não houver registro
-        document.getElementById('preview-frente').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E";
-        document.getElementById('preview-lado').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E";
+        // Abrir modal para adicionar registro
+        openAddRegistroModal(dataStr);
     }
-    
-    // Ir para seção de registro
-    const registroNav = document.querySelector('[data-section="registro"]');
-    showSection('registro', registroNav);
 };
 
+function openAddRegistroModal(dataStr) {
+    const modal = document.getElementById('modal-add-registro');
+    const dateTitle = document.getElementById('modal-add-registro-date');
+    const form = document.getElementById('modal-add-registro-form');
+    
+    dateTitle.textContent = `Adicionar Registro - ${new Date(dataStr).toLocaleDateString('pt-BR')}`;
+    document.getElementById('modal-add-registro-data').value = dataStr;
+    
+    // Limpar formulário
+    form.reset();
+    document.getElementById('modal-add-registro-data').value = dataStr;
+    
+    // Limpar previews
+    const previewFrente = document.getElementById('preview-frente-modal');
+    const previewLado = document.getElementById('preview-lado-modal');
+    const boxFrente = previewFrente?.closest('.photo-upload-box');
+    const boxLado = previewLado?.closest('.photo-upload-box');
+    
+    if (previewFrente) {
+        previewFrente.src = '';
+        if (boxFrente) boxFrente.classList.remove('has-image');
+    }
+    if (previewLado) {
+        previewLado.src = '';
+        if (boxLado) boxLado.classList.remove('has-image');
+    }
+    
+    // Limpar inputs de arquivo
+    document.getElementById('foto-frente-modal').value = '';
+    document.getElementById('foto-lado-modal').value = '';
+    
+    modal.classList.add('active');
+}
+
+async function showRegistroModal(dataStr, registro) {
+    const modal = document.getElementById('modal-registro-view');
+    const content = document.getElementById('modal-registro-content');
+    const dateTitle = document.getElementById('modal-registro-date');
+    
+    dateTitle.textContent = new Date(dataStr).toLocaleDateString('pt-BR', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+    
+    // Buscar fotos do IndexedDB se necessário
+    let fotoFrente = registro.fotoFrente;
+    let fotoLado = registro.fotoLado;
+    
+    if (!fotoFrente) {
+        fotoFrente = await getPhotoFromDB('frente', dataStr);
+    }
+    if (!fotoLado) {
+        fotoLado = await getPhotoFromDB('lado', dataStr);
+    }
+    
+    content.innerHTML = `
+        <div class="registro-view-info">
+            <div class="registro-view-item">
+                <span class="registro-view-label">Peso</span>
+                <span class="registro-view-value">${registro.peso.toFixed(1)} kg</span>
+            </div>
+            ${registro.cintura ? `
+                <div class="registro-view-item">
+                    <span class="registro-view-label">Cintura</span>
+                    <span class="registro-view-value">${registro.cintura} cm</span>
+                </div>
+            ` : ''}
+            ${registro.agua ? `
+                <div class="registro-view-item">
+                    <span class="registro-view-label">Água</span>
+                    <span class="registro-view-value">${registro.agua} L</span>
+                </div>
+            ` : ''}
+            ${registro.sono ? `
+                <div class="registro-view-item">
+                    <span class="registro-view-label">Sono</span>
+                    <span class="registro-view-value">${registro.sono} h</span>
+                </div>
+            ` : ''}
+        </div>
+        ${(fotoFrente || fotoLado) ? `
+            <div class="registro-view-photos">
+                ${fotoFrente ? `
+                    <div class="registro-view-photo">
+                        <img src="${fotoFrente}" alt="Foto Frente">
+                    </div>
+                ` : '<div></div>'}
+                ${fotoLado ? `
+                    <div class="registro-view-photo">
+                        <img src="${fotoLado}" alt="Foto Lado">
+                    </div>
+                ` : '<div></div>'}
+            </div>
+        ` : ''}
+    `;
+    
+    // Armazenar data para edição
+    modal.setAttribute('data-edit-date', dataStr);
+    
+    modal.classList.add('active');
+}
+
+function prepareAddRegistroForDate(dataStr) {
+    // Esta função prepararia o formulário para adicionar registro em data específica
+    // Por enquanto, apenas mostra a seção de registro
+}
+
+function clearRegistroForm() {
+    document.getElementById('registro-form').reset();
+    
+    // Limpar previews de foto
+    const previewFrente = document.getElementById('preview-frente');
+    const previewLado = document.getElementById('preview-lado');
+    const boxFrente = previewFrente?.closest('.photo-upload-box');
+    const boxLado = previewLado?.closest('.photo-upload-box');
+    
+    if (previewFrente) {
+        previewFrente.src = '';
+        if (boxFrente) boxFrente.classList.remove('has-image');
+    }
+    if (previewLado) {
+        previewLado.src = '';
+        if (boxLado) boxLado.classList.remove('has-image');
+    }
+    
+    // Limpar inputs de arquivo
+    document.getElementById('foto-frente').value = '';
+    document.getElementById('foto-lado').value = '';
+}
+
 // ==================== HISTÓRICO ====================
+
+let selectedDatesForComparison = [];
 
 function loadHistorico() {
     const container = document.getElementById('historico-list');
@@ -1080,12 +1223,18 @@ function loadHistorico() {
         return;
     }
     
-    container.innerHTML = registros
+    // Botão de comparação
+    const comparisonButton = selectedDatesForComparison.length === 2 ? 
+        `<button class="btn btn-primary btn-full mb-20" onclick="showPhotoComparison()">Comparar Fotos Selecionadas</button>` : 
+        `<p style="color: var(--text-secondary); text-align: center; margin-bottom: 20px;">Selecione 2 datas para comparar fotos</p>`;
+    
+    container.innerHTML = comparisonButton + registros
         .sort((a, b) => new Date(b.data) - new Date(a.data))
         .map((registro, index) => {
             const dataFormatada = new Date(registro.data).toLocaleDateString('pt-BR');
             const registroAnterior = index < registros.length - 1 ? registros[registros.length - 2 - index] : null;
             const mudanca = registroAnterior ? (registro.peso - registroAnterior.peso).toFixed(1) : null;
+            const isSelected = selectedDatesForComparison.includes(registro.data);
             
             let meta = [];
             if (registro.agua) meta.push(`💧 ${registro.agua}L`);
@@ -1093,9 +1242,9 @@ function loadHistorico() {
             if (registro.cintura) meta.push(`📏 ${registro.cintura}cm`);
             
             return `
-                <div class="history-item">
+                <div class="history-item ${isSelected ? 'selected' : ''}" data-date="${registro.data}" onclick="toggleDateForComparison('${registro.data}')">
                     <div>
-                        <div class="history-date">${dataFormatada}</div>
+                        <div class="history-date">${dataFormatada} ${isSelected ? '✓' : ''}</div>
                         <div class="history-meta">${meta.join(' • ')}</div>
                         ${mudanca ? `
                             <div class="history-change ${mudanca < 0 ? 'positive' : mudanca > 0 ? 'negative' : ''}">
@@ -1108,6 +1257,64 @@ function loadHistorico() {
             `;
         })
         .join('');
+}
+
+window.toggleDateForComparison = function(date) {
+    const index = selectedDatesForComparison.indexOf(date);
+    if (index > -1) {
+        selectedDatesForComparison.splice(index, 1);
+    } else {
+        if (selectedDatesForComparison.length < 2) {
+            selectedDatesForComparison.push(date);
+        } else {
+            alert('Você pode selecionar no máximo 2 datas para comparação');
+            return;
+        }
+    }
+    loadHistorico();
+};
+
+async function showPhotoComparison() {
+    if (selectedDatesForComparison.length !== 2) return;
+    
+    const registros = getRegistros();
+    const registro1 = registros.find(r => r.data === selectedDatesForComparison[0]);
+    const registro2 = registros.find(r => r.data === selectedDatesForComparison[1]);
+    
+    if (!registro1 || !registro2) return;
+    
+    // Buscar fotos
+    let foto1Frente = registro1.fotoFrente || await getPhotoFromDB('frente', selectedDatesForComparison[0]);
+    let foto1Lado = registro1.fotoLado || await getPhotoFromDB('lado', selectedDatesForComparison[0]);
+    let foto2Frente = registro2.fotoFrente || await getPhotoFromDB('frente', selectedDatesForComparison[1]);
+    let foto2Lado = registro2.fotoLado || await getPhotoFromDB('lado', selectedDatesForComparison[1]);
+    
+    // Usar frente se disponível, senão lado
+    const foto1 = foto1Frente || foto1Lado;
+    const foto2 = foto2Frente || foto2Lado;
+    
+    if (!foto1 || !foto2) {
+        alert('Uma ou ambas as datas não possuem fotos para comparação');
+        return;
+    }
+    
+    const modal = document.getElementById('modal-photo-comparison');
+    const content = document.getElementById('photo-comparison-content');
+    
+    content.innerHTML = `
+        <div class="photo-comparison-grid">
+            <div class="photo-comparison-item">
+                <img src="${foto1}" alt="Foto 1">
+                <div class="date-label">${new Date(selectedDatesForComparison[0]).toLocaleDateString('pt-BR')}</div>
+            </div>
+            <div class="photo-comparison-item">
+                <img src="${foto2}" alt="Foto 2">
+                <div class="date-label">${new Date(selectedDatesForComparison[1]).toLocaleDateString('pt-BR')}</div>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.add('active');
 }
 
 // ==================== TREINOS ====================
@@ -1157,7 +1364,12 @@ function renderTreinoDoDia() {
             `).join('')}
         </div>
         <button class="btn btn-primary btn-full mt-20" data-action="start-workout" data-workout-id="${treinoDoDia.id}">
-            🏋️ Iniciar Treino
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6.5 6.5h11v11h-11z"></path>
+                <path d="M6.5 17.5L12 12l5.5 5.5"></path>
+                <path d="M12 12L6.5 6.5l5.5 5.5"></path>
+            </svg>
+            Iniciar Treino
         </button>
     `;
     
@@ -1197,16 +1409,24 @@ function renderTreinosList() {
                         ).join('') : ''}
                     </div>
                     <div style="margin-top: 10px; font-size: 12px; color: var(--text-secondary);">
-                        Status: ${treino.ativo ? '✅ Ativo' : '⏸️ Inativo'}
+                        Status: ${treino.ativo ? 'Ativo' : 'Inativo'}
                     </div>
                 </div>
             </div>
             <div class="workout-actions">
                 <button class="btn btn-secondary" data-action="edit-workout" data-workout-id="${treino.id}">
-                    ✏️ Editar
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Editar
                 </button>
                 <button class="btn btn-danger" data-action="delete-workout" data-workout-id="${treino.id}">
-                    🗑️ Excluir
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Excluir
                 </button>
             </div>
         </div>
@@ -1259,9 +1479,91 @@ function openWorkoutEditor(workoutId = null) {
         form.reset();
         document.getElementById('workout-editor-id').value = '';
         exercisesContainer.innerHTML = '';
+        // Limpar checkboxes
+        document.querySelectorAll('.workout-day').forEach(cb => {
+            cb.checked = false;
+        });
     }
     
+    // Atualizar visualização dos dias selecionados
+    updateSelectedDaysDisplay();
+    
     modal.classList.add('active');
+}
+
+function updateSelectedDaysDisplay() {
+    const container = document.getElementById('workout-days-selected');
+    if (!container) return;
+    
+    const selectedDays = Array.from(document.querySelectorAll('.workout-day:checked'))
+        .map(cb => cb.value);
+    
+    if (selectedDays.length === 0) {
+        container.innerHTML = '<span style="color: var(--text-tertiary); font-size: 13px;">Nenhum dia selecionado</span>';
+    } else {
+        container.innerHTML = selectedDays.map(day => `
+            <span class="selected-day-badge">
+                ${day}
+                <span class="remove-day" onclick="removeDayFromSelection('${day}')">×</span>
+            </span>
+        `).join('');
+    }
+}
+
+window.removeDayFromSelection = function(day) {
+    const checkbox = document.querySelector(`.workout-day[value="${day}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        updateSelectedDaysDisplay();
+    }
+};
+
+function editRegistroFromModal() {
+    const modal = document.getElementById('modal-registro-view');
+    const date = modal.getAttribute('data-edit-date');
+    if (!date) return;
+    
+    closeModal();
+    
+    // Ir para seção de registro e carregar dados
+    const registroNav = document.querySelector('[data-section="registro"]');
+    showSection('registro', registroNav);
+    
+    // Carregar dados do registro
+    loadRegistroForEdit(date);
+}
+
+async function loadRegistroForEdit(dataStr) {
+    const registros = getRegistros();
+    const registro = registros.find(r => r.data === dataStr);
+    
+    if (!registro) return;
+    
+    document.getElementById('registro-peso').value = registro.peso || '';
+    document.getElementById('registro-cintura').value = registro.cintura || '';
+    document.getElementById('registro-agua').value = registro.agua || '';
+    document.getElementById('registro-sono').value = registro.sono || '';
+    
+    // Carregar fotos
+    const previewFrente = document.getElementById('preview-frente');
+    const previewLado = document.getElementById('preview-lado');
+    const boxFrente = previewFrente?.closest('.photo-upload-box');
+    const boxLado = previewLado?.closest('.photo-upload-box');
+    
+    let fotoFrente = registro.fotoFrente || await getPhotoFromDB('frente', dataStr);
+    let fotoLado = registro.fotoLado || await getPhotoFromDB('lado', dataStr);
+    
+    if (fotoFrente && previewFrente) {
+        previewFrente.src = fotoFrente;
+        if (boxFrente) boxFrente.classList.add('has-image');
+    }
+    if (fotoLado && previewLado) {
+        previewLado.src = fotoLado;
+        if (boxLado) boxLado.classList.add('has-image');
+    }
+    
+    // Armazenar data para salvar no registro existente
+    document.getElementById('registro-form').setAttribute('data-edit-date', dataStr);
 }
 
 function addExerciseToEditor(exercise = null, index = null) {
@@ -1269,6 +1571,8 @@ function addExerciseToEditor(exercise = null, index = null) {
     if (!container) return;
     
     const exerciseIndex = index !== null ? index : container.children.length;
+    const hasImage = exercise?.imagem ? 'has-image' : '';
+    const imageSrc = exercise?.imagem || '';
     
     const exerciseHtml = `
         <div class="card mb-20" data-exercise-index="${exerciseIndex}">
@@ -1279,6 +1583,24 @@ function addExerciseToEditor(exercise = null, index = null) {
             <div class="form-group">
                 <label>Nome do Exercício *</label>
                 <input type="text" class="exercise-nome" value="${exercise?.nome || ''}" required>
+            </div>
+            <div class="form-group">
+                <label>Imagem do Exercício</label>
+                <div class="exercise-image-upload ${hasImage}" onclick="openExerciseImagePicker(${exerciseIndex})" data-exercise-index="${exerciseIndex}">
+                    <svg class="exercise-image-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <div class="exercise-image-label">Adicionar Imagem</div>
+                    <img class="exercise-image-preview" src="${imageSrc}" alt="Preview exercício">
+                    <button type="button" class="exercise-image-remove" onclick="event.stopPropagation(); removeExerciseImage(${exerciseIndex})">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <input type="file" class="exercise-image-input" data-exercise-index="${exerciseIndex}" accept="image/*" style="display: none;">
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -1304,6 +1626,18 @@ function addExerciseToEditor(exercise = null, index = null) {
     `;
     
     container.insertAdjacentHTML('beforeend', exerciseHtml);
+    
+    // Setup image input
+    const imageInput = container.querySelector(`.exercise-image-input[data-exercise-index="${exerciseIndex}"]`);
+    if (imageInput) {
+        imageInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const base64 = await compressImage(file);
+                updateExerciseImagePreview(exerciseIndex, base64);
+            }
+        });
+    }
 }
 
 window.removeExercise = function(index) {
@@ -1332,14 +1666,19 @@ function handleWorkoutEditorSubmit(e) {
         .map(cb => cb.value);
     
     const exercisesContainer = document.getElementById('workout-exercises-container');
-    const exercicios = Array.from(exercisesContainer.children).map(exEl => ({
-        id: `ex-${Date.now()}-${Math.random()}`,
-        nome: exEl.querySelector('.exercise-nome').value,
-        series: parseInt(exEl.querySelector('.exercise-series').value) || 0,
-        repeticoes: exEl.querySelector('.exercise-repeticoes').value || '',
-        descanso: parseInt(exEl.querySelector('.exercise-descanso').value) || 0,
-        carga: exEl.querySelector('.exercise-carga').value || ''
-    }));
+    const exercicios = Array.from(exercisesContainer.children).map((exEl, idx) => {
+        const preview = exEl.querySelector('.exercise-image-preview');
+        const imagem = preview && preview.src && !preview.src.includes('data:image/svg') ? preview.src : null;
+        return {
+            id: `ex-${Date.now()}-${Math.random()}-${idx}`,
+            nome: exEl.querySelector('.exercise-nome').value,
+            series: parseInt(exEl.querySelector('.exercise-series').value) || 0,
+            repeticoes: exEl.querySelector('.exercise-repeticoes').value || '',
+            descanso: parseInt(exEl.querySelector('.exercise-descanso').value) || 0,
+            carga: exEl.querySelector('.exercise-carga').value || '',
+            imagem: imagem
+        };
+    });
     
     if (exercicios.length === 0) {
         alert('Adicione pelo menos um exercício');
@@ -1482,6 +1821,8 @@ function handleConfigSubmit(e) {
     
     const config = {
         nome: document.getElementById('config-nome').value,
+        pesoAtual: document.getElementById('config-peso-atual').value ? 
+            parseFloat(document.getElementById('config-peso-atual').value) : null,
         pesoMeta: document.getElementById('config-peso-meta').value ? 
             parseFloat(document.getElementById('config-peso-meta').value) : null,
         prazoMeta: document.getElementById('config-prazo-meta').value ? 
@@ -1496,7 +1837,7 @@ function handleConfigSubmit(e) {
     // Aplicar tema
     document.documentElement.setAttribute('data-theme', config.temaEscuro ? 'dark' : 'light');
     
-    showModal('modal-success', 'Configurações salvas! ✅');
+    showModal('modal-success', 'Configurações salvas!');
     loadDashboard();
 }
 
@@ -1596,6 +1937,850 @@ function scheduleNotifications() {
     
     // Implementação básica - notificações seriam agendadas aqui
     // Em produção, usaria Service Worker para notificações agendadas
+}
+
+// ==================== FOTO UPLOAD FUNCTIONS ====================
+
+let currentPhotoType = null;
+
+window.openPhotoOptions = function(type) {
+    currentPhotoType = type;
+    document.getElementById('photo-options-backdrop').classList.add('active');
+    document.getElementById('photo-options-modal').classList.add('active');
+};
+
+window.closePhotoOptions = function() {
+    document.getElementById('photo-options-backdrop').classList.remove('active');
+    document.getElementById('photo-options-modal').classList.remove('active');
+    currentPhotoType = null;
+};
+
+window.selectPhotoFromGallery = function() {
+    let inputId;
+    if (currentPhotoType === 'frente' || currentPhotoType === 'frente-modal') {
+        inputId = currentPhotoType === 'frente-modal' ? 'foto-frente-modal' : 'foto-frente';
+    } else {
+        inputId = currentPhotoType === 'lado-modal' ? 'foto-lado-modal' : 'foto-lado';
+    }
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.removeAttribute('capture');
+        input.click();
+    }
+    closePhotoOptions();
+};
+
+window.takePhoto = function() {
+    let inputId;
+    if (currentPhotoType === 'frente' || currentPhotoType === 'frente-modal') {
+        inputId = currentPhotoType === 'frente-modal' ? 'foto-frente-modal' : 'foto-frente';
+    } else {
+        inputId = currentPhotoType === 'lado-modal' ? 'foto-lado-modal' : 'foto-lado';
+    }
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.setAttribute('capture', 'environment');
+        input.click();
+    }
+    closePhotoOptions();
+};
+
+window.removePhoto = function(type) {
+    const previewId = type === 'frente' ? 'preview-frente' : 'preview-lado';
+    const preview = document.getElementById(previewId);
+    const box = preview.closest('.photo-upload-box');
+    const input = document.getElementById(`foto-${type}`);
+    
+    preview.src = '';
+    box.classList.remove('has-image');
+    input.value = '';
+};
+
+// Atualizar preview quando foto for selecionada
+document.addEventListener('change', async (e) => {
+    if (e.target.id === 'foto-frente' || e.target.id === 'foto-lado') {
+        const file = e.target.files[0];
+        if (file) {
+            const type = e.target.id.replace('foto-', '');
+            const previewId = `preview-${type}`;
+            const preview = document.getElementById(previewId);
+            if (preview) {
+                const box = preview.closest('.photo-upload-box');
+                
+                const base64 = await compressImage(file);
+                preview.src = base64;
+                if (box) {
+                    box.classList.add('has-image');
+                }
+            }
+        }
+    }
+    
+    // Fotos do modal
+    if (e.target.id === 'foto-frente-modal' || e.target.id === 'foto-lado-modal') {
+        const file = e.target.files[0];
+        if (file) {
+            const type = e.target.id.replace('foto-', '').replace('-modal', '');
+            const previewId = `preview-${type}-modal`;
+            const preview = document.getElementById(previewId);
+            if (preview) {
+                const box = preview.closest('.photo-upload-box');
+                
+                const base64 = await compressImage(file);
+                preview.src = base64;
+                if (box) {
+                    box.classList.add('has-image');
+                }
+            }
+        }
+    }
+});
+
+async function handlePhotoUploadModal(e, type) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const previewId = type === 'frente-modal' ? 'preview-frente-modal' : 'preview-lado-modal';
+    const preview = document.getElementById(previewId);
+    
+    if (preview) {
+        const base64 = await compressImage(file);
+        preview.src = base64;
+        const box = preview.closest('.photo-upload-box');
+        if (box) {
+            box.classList.add('has-image');
+        }
+    }
+}
+
+window.openPhotoOptionsModal = function(type) {
+    currentPhotoType = type;
+    document.getElementById('photo-options-backdrop').classList.add('active');
+    document.getElementById('photo-options-modal').classList.add('active');
+};
+
+window.removePhotoModal = function(type) {
+    const previewId = type === 'frente-modal' ? 'preview-frente-modal' : 'preview-lado-modal';
+    const preview = document.getElementById(previewId);
+    const box = preview?.closest('.photo-upload-box');
+    const inputId = type === 'frente-modal' ? 'foto-frente-modal' : 'foto-lado-modal';
+    const input = document.getElementById(inputId);
+    
+    if (preview) {
+        preview.src = '';
+        if (box) box.classList.remove('has-image');
+    }
+    if (input) {
+        input.value = '';
+    }
+};
+
+function validatePesoModal() {
+    const pesoInput = document.getElementById('modal-add-registro-peso');
+    const peso = parseFloat(pesoInput.value);
+    const data = document.getElementById('modal-add-registro-data').value;
+    const registros = getRegistros();
+    
+    // Encontrar último registro antes desta data
+    const registrosAntes = registros
+        .filter(r => r.data < data)
+        .sort((a, b) => new Date(b.data) - new Date(a.data));
+    
+    if (registrosAntes.length > 0) {
+        const ultimoPeso = registrosAntes[0].peso;
+        const diferenca = Math.abs(peso - ultimoPeso);
+        
+        if (diferenca > 10) {
+            pesoInput.classList.add('invalid');
+            pesoInput.classList.remove('valid');
+            document.getElementById('modal-peso-error').textContent = 
+                'Peso não pode variar mais de 10kg de um dia para outro';
+            return { valid: false };
+        }
+    }
+    
+    pesoInput.classList.remove('invalid');
+    pesoInput.classList.add('valid');
+    document.getElementById('modal-peso-error').textContent = '';
+    return { valid: true };
+}
+
+function validateSonoModal() {
+    const sonoInput = document.getElementById('modal-add-registro-sono');
+    const sono = parseFloat(sonoInput.value);
+    
+    if (sono && sono > 24) {
+        sonoInput.classList.add('invalid');
+        sonoInput.classList.remove('valid');
+        document.getElementById('modal-sono-error').textContent = 'Sono não pode ser maior que 24 horas';
+        return { valid: false };
+    }
+    
+    sonoInput.classList.remove('invalid');
+    sonoInput.classList.add('valid');
+    document.getElementById('modal-sono-error').textContent = '';
+    return { valid: true };
+}
+
+async function handleModalAddRegistroSubmit(e) {
+    e.preventDefault();
+    
+    const data = document.getElementById('modal-add-registro-data').value;
+    const peso = parseFloat(document.getElementById('modal-add-registro-peso').value);
+    const cintura = document.getElementById('modal-add-registro-cintura').value ? 
+        parseFloat(document.getElementById('modal-add-registro-cintura').value) : null;
+    const agua = document.getElementById('modal-add-registro-agua').value ? 
+        parseFloat(document.getElementById('modal-add-registro-agua').value) : null;
+    const sono = document.getElementById('modal-add-registro-sono').value ? 
+        parseFloat(document.getElementById('modal-add-registro-sono').value) : null;
+    
+    // Validações
+    const validacaoPeso = validatePesoModal();
+    if (!validacaoPeso.valid) {
+        return;
+    }
+    
+    const validacaoSono = validateSonoModal();
+    if (!validacaoSono.valid) {
+        return;
+    }
+    
+    // Buscar registros
+    const registros = getRegistros();
+    
+    const novoRegistro = {
+        data: data,
+        peso: peso,
+        cintura: cintura,
+        agua: agua,
+        sono: sono
+    };
+    
+    // Salvar fotos
+    const fotoFrenteInput = document.getElementById('foto-frente-modal');
+    const fotoLadoInput = document.getElementById('foto-lado-modal');
+    
+    if (fotoFrenteInput.files.length > 0) {
+        const fotoFrenteBase64 = await compressImage(fotoFrenteInput.files[0]);
+        novoRegistro.fotoFrente = fotoFrenteBase64;
+        await savePhotoToDB('frente', data, fotoFrenteBase64);
+    }
+    
+    if (fotoLadoInput.files.length > 0) {
+        const fotoLadoBase64 = await compressImage(fotoLadoInput.files[0]);
+        novoRegistro.fotoLado = fotoLadoBase64;
+        await savePhotoToDB('lado', data, fotoLadoBase64);
+    }
+    
+    // Verificar se já existe registro para esta data
+    const indexExistente = registros.findIndex(r => r.data === data);
+    
+    if (indexExistente >= 0) {
+        registros[indexExistente] = novoRegistro;
+    } else {
+        registros.push(novoRegistro);
+    }
+    
+    // Ordenar por data
+    registros.sort((a, b) => new Date(a.data) - new Date(b.data));
+    
+    saveRegistros(registros);
+    
+    // Fechar modal
+    closeModal();
+    
+    // Verificar achievements
+    checkAchievements();
+    
+    // Feedback
+    showModal('modal-success', 'Registro salvo com sucesso!');
+    
+    // Atualizar calendário e dashboard
+    renderCalendar();
+    loadDashboard();
+}
+
+// ==================== EXERCISE IMAGE FUNCTIONS ====================
+
+window.openExerciseImagePicker = function(exerciseIndex) {
+    const input = document.querySelector(`.exercise-image-input[data-exercise-index="${exerciseIndex}"]`);
+    if (input) {
+        input.click();
+    }
+};
+
+window.updateExerciseImagePreview = function(exerciseIndex, base64) {
+    const container = document.querySelector(`[data-exercise-index="${exerciseIndex}"]`);
+    if (!container) return;
+    
+    const uploadBox = container.querySelector('.exercise-image-upload');
+    const preview = container.querySelector('.exercise-image-preview');
+    
+    if (preview && uploadBox) {
+        preview.src = base64;
+        uploadBox.classList.add('has-image');
+    }
+};
+
+window.removeExerciseImage = function(exerciseIndex) {
+    const container = document.querySelector(`[data-exercise-index="${exerciseIndex}"]`);
+    if (!container) return;
+    
+    const uploadBox = container.querySelector('.exercise-image-upload');
+    const preview = container.querySelector('.exercise-image-preview');
+    const input = container.querySelector('.exercise-image-input');
+    
+    if (preview && uploadBox && input) {
+        preview.src = '';
+        uploadBox.classList.remove('has-image');
+        input.value = '';
+    }
+};
+
+// ==================== ONBOARDING ====================
+
+let currentOnboardingSlide = 1;
+const totalOnboardingSlides = 4;
+
+function showOnboarding() {
+    const onboarding = document.getElementById('onboarding');
+    if (onboarding) {
+        onboarding.classList.remove('hidden');
+        currentOnboardingSlide = 1;
+        updateOnboardingSlide(1);
+    }
+}
+
+function updateOnboardingSlide(slide) {
+    document.querySelectorAll('.onboarding-slide').forEach(s => s.classList.remove('active'));
+    const currentSlide = document.querySelector(`.onboarding-slide[data-slide="${slide}"]`);
+    if (currentSlide) {
+        currentSlide.classList.add('active');
+    }
+    
+    // Atualizar progress dots
+    document.querySelectorAll('.onboarding-dot').forEach((dot, index) => {
+        dot.classList.toggle('active', index === slide - 1);
+    });
+}
+
+window.nextOnboardingSlide = function() {
+    if (currentOnboardingSlide < totalOnboardingSlides) {
+        currentOnboardingSlide++;
+        updateOnboardingSlide(currentOnboardingSlide);
+    }
+};
+
+window.prevOnboardingSlide = function() {
+    if (currentOnboardingSlide > 1) {
+        currentOnboardingSlide--;
+        updateOnboardingSlide(currentOnboardingSlide);
+    }
+};
+
+window.completeOnboarding = function(action) {
+    // Salvar configurações do onboarding
+    const config = {
+        nome: document.getElementById('onboarding-nome')?.value || '',
+        pesoAtual: document.getElementById('onboarding-peso-atual')?.value ? 
+            parseFloat(document.getElementById('onboarding-peso-atual').value) : null,
+        pesoMeta: document.getElementById('onboarding-peso-meta')?.value ? 
+            parseFloat(document.getElementById('onboarding-peso-meta').value) : null,
+        prazoMeta: document.getElementById('onboarding-prazo-meta')?.value ? 
+            parseInt(document.getElementById('onboarding-prazo-meta').value) : null,
+        temaEscuro: document.getElementById('onboarding-tema-escuro')?.checked !== false,
+        lembreteAtivo: document.getElementById('onboarding-lembrete')?.checked || false,
+        lembreteHorario: document.getElementById('onboarding-horario')?.value || '08:00'
+    };
+    
+    saveConfig(config);
+    
+    // Aplicar tema
+    document.documentElement.setAttribute('data-theme', config.temaEscuro ? 'dark' : 'light');
+    
+    // Marcar onboarding como completo
+    localStorage.setItem('onboarding_complete', 'true');
+    
+    // Esconder onboarding
+    document.getElementById('onboarding').classList.add('hidden');
+    
+    // Inicializar app
+    initializeAppAfterOnboarding();
+    
+    // Navegar conforme ação
+    if (action === 'register') {
+        const registroNav = document.querySelector('[data-section="registro"]');
+        showSection('registro', registroNav);
+    } else {
+        const dashboardNav = document.querySelector('[data-section="dashboard"]');
+        showSection('dashboard', dashboardNav);
+    }
+};
+
+async function initializeAppAfterOnboarding() {
+    // Migrar dados se necessário
+    migrateData();
+    
+    // Inicializar IndexedDB
+    await initIndexedDB();
+    
+    // Carregar configurações
+    loadConfig();
+    
+    // Carregar dados
+    loadDashboard();
+    loadRegistro();
+    loadHistorico();
+    loadTreinos();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Setup service worker
+    registerServiceWorker();
+    
+    // Solicitar permissão de notificações
+    requestNotificationPermission();
+    
+    // Setup notificações
+    setupNotifications();
+}
+
+// ==================== ACHIEVEMENTS ====================
+
+const ACHIEVEMENTS = {
+    firstRecord: { icon: '🎯', title: 'Primeiro Passo', description: 'Você registrou seu primeiro peso!' },
+    weekStreak: { icon: '🔥', title: '7 Dias de Fogo', description: '7 dias seguidos registrando!' },
+    monthStreak: { icon: '💪', title: 'Máquina de Disciplina', description: '30 dias sem faltar!' },
+    weightLoss5kg: { icon: '🏆', title: '5kg Perdidos', description: 'Você perdeu 5kg! Continue assim!' },
+    weightLoss10kg: { icon: '👑', title: '10kg Perdidos', description: 'Incrível! 10kg perdidos!' },
+    weeklyGoal: { icon: '⭐', title: 'Meta Semanal', description: 'Meta semanal atingida!' },
+    monthlyGoal: { icon: '🌟', title: 'Meta Mensal', description: 'Meta mensal atingida!' },
+    finalGoal: { icon: '🎉', title: 'Meta Final', description: 'Parabéns! Você atingiu sua meta final!' }
+};
+
+function checkAchievements() {
+    const registros = getRegistros();
+    if (registros.length === 0) return;
+    
+    const achievements = JSON.parse(localStorage.getItem('fittrack_achievements') || '[]');
+    
+    // Primeiro registro
+    if (registros.length === 1 && !achievements.includes('firstRecord')) {
+        unlockAchievement('firstRecord');
+    }
+    
+    // Streak de 7 dias
+    const streak = calculateStreak(registros);
+    if (streak >= 7 && !achievements.includes('weekStreak')) {
+        unlockAchievement('weekStreak');
+    }
+    
+    // Streak de 30 dias
+    if (streak >= 30 && !achievements.includes('monthStreak')) {
+        unlockAchievement('monthStreak');
+    }
+    
+    // Perda de peso
+    const primeiroPeso = registros[0].peso;
+    const ultimoPeso = registros[registros.length - 1].peso;
+    const perdaTotal = primeiroPeso - ultimoPeso;
+    
+    if (perdaTotal >= 5 && !achievements.includes('weightLoss5kg')) {
+        unlockAchievement('weightLoss5kg');
+    }
+    
+    if (perdaTotal >= 10 && !achievements.includes('weightLoss10kg')) {
+        unlockAchievement('weightLoss10kg');
+    }
+    
+    // Metas
+    const config = getConfig();
+    if (config.pesoMeta && ultimoPeso <= config.pesoMeta && !achievements.includes('finalGoal')) {
+        unlockAchievement('finalGoal');
+    }
+}
+
+function calculateStreak(registros) {
+    if (registros.length === 0) return 0;
+    
+    const hoje = new Date().toISOString().split('T')[0];
+    const datas = registros.map(r => r.data).sort((a, b) => new Date(b) - new Date(a));
+    
+    let streak = 0;
+    let dataAtual = new Date(hoje);
+    
+    for (const data of datas) {
+        const dataStr = new Date(dataAtual).toISOString().split('T')[0];
+        if (datas.includes(dataStr)) {
+            streak++;
+            dataAtual.setDate(dataAtual.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+    
+    return streak;
+}
+
+function unlockAchievement(achievementKey) {
+    const achievements = JSON.parse(localStorage.getItem('fittrack_achievements') || '[]');
+    if (achievements.includes(achievementKey)) return;
+    
+    achievements.push(achievementKey);
+    localStorage.setItem('fittrack_achievements', JSON.stringify(achievements));
+    
+    const achievement = ACHIEVEMENTS[achievementKey];
+    if (achievement) {
+        showAchievementModal(achievement);
+    }
+}
+
+function showAchievementModal(achievement) {
+    document.getElementById('achievement-icon').textContent = achievement.icon;
+    document.getElementById('achievement-title').textContent = achievement.title;
+    document.getElementById('achievement-description').textContent = achievement.description;
+    document.getElementById('achievement-modal').classList.add('active');
+    
+    // Vibração
+    if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+    }
+}
+
+window.closeAchievementModal = function() {
+    document.getElementById('achievement-modal').classList.remove('active');
+};
+
+// ==================== MELHORIAS NO CALENDÁRIO ====================
+
+function renderCalendarMonth(container, mes, ano) {
+    const registros = getRegistros();
+    const checkins = getTreinoCheckins();
+    const hoje = new Date().toISOString().split('T')[0];
+    
+    const primeiroDia = new Date(ano, mes, 1);
+    const ultimoDia = new Date(ano, mes + 1, 0);
+    const diasNoMes = ultimoDia.getDate();
+    const diaSemanaInicio = primeiroDia.getDay();
+    
+    const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const nomesDias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    
+    let html = `
+        <div class="calendar-header">
+            <button class="calendar-nav" onclick="navigateCalendar(-1)" aria-label="Mês anterior">←</button>
+            <h3>${nomesMeses[mes]} ${ano}</h3>
+            <button class="calendar-nav" onclick="navigateCalendar(1)" aria-label="Próximo mês">→</button>
+        </div>
+        <div class="calendar-grid" role="grid">
+    `;
+    
+    // Dias da semana
+    nomesDias.forEach(dia => {
+        html += `<div class="calendar-day-name" role="columnheader">${dia}</div>`;
+    });
+    
+    // Espaços vazios antes do primeiro dia
+    for (let i = 0; i < diaSemanaInicio; i++) {
+        html += `<div class="calendar-day"></div>`;
+    }
+    
+    // Dias do mês
+    for (let dia = 1; dia <= diasNoMes; dia++) {
+        const dataStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const registro = registros.find(r => r.data === dataStr);
+        const temRegistro = !!registro;
+        const temTreino = checkins.some(c => c.data === dataStr && c.concluido);
+        const temFoto = registro && (registro.fotoFrente || registro.fotoLado);
+        const eHoje = dataStr === hoje;
+        
+        // Calcular mudança de peso
+        let mudancaPeso = null;
+        if (registro) {
+            const registrosAntes = registros.filter(r => r.data < dataStr).sort((a, b) => new Date(b.data) - new Date(a.data));
+            if (registrosAntes.length > 0) {
+                mudancaPeso = registro.peso - registrosAntes[0].peso;
+            }
+        }
+        
+        let classes = 'calendar-day';
+        if (eHoje) classes += ' today';
+        if (temRegistro) classes += ' has-record';
+        if (temTreino) classes += ' has-workout';
+        if (temFoto) classes += ' has-photo';
+        if (mudancaPeso !== null) {
+            if (mudancaPeso < 0) classes += ' weight-down';
+            else if (mudancaPeso > 0) classes += ' weight-up';
+        }
+        
+        html += `
+            <div class="${classes}" data-date="${dataStr}" onclick="selectCalendarDate('${dataStr}')" 
+                 role="gridcell" aria-label="${new Date(dataStr).toLocaleDateString('pt-BR')}${temRegistro ? ' - Com registro' : ''}">
+                ${dia}
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// ==================== MELHORIAS NO GRÁFICO ====================
+
+function renderChart(periodDays = 30) {
+    const canvas = document.getElementById('weight-chart');
+    if (!canvas) return;
+    
+    const registros = getRegistros();
+    const config = getConfig();
+    if (registros.length === 0) {
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
+    
+    const now = new Date();
+    const cutoffDate = new Date(now.getTime() - periodDays * 24 * 60 * 60 * 1000);
+    
+    const filteredRegistros = registros
+        .filter(r => new Date(r.data) >= cutoffDate)
+        .sort((a, b) => new Date(a.data) - new Date(b.data));
+    
+    if (filteredRegistros.length === 0) {
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = canvas.offsetWidth;
+    const height = canvas.height = 200;
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    // Configurações
+    const padding = 40;
+    const chartWidth = width - padding * 2;
+    const chartHeight = height - padding * 2;
+    
+    const pesos = filteredRegistros.map(r => r.peso);
+    const minPeso = Math.min(...pesos);
+    const maxPeso = Math.max(...pesos);
+    const range = maxPeso - minPeso || 1;
+    
+    // Desenhar linha da meta se existir
+    if (config.pesoMeta) {
+        const metaY = padding + chartHeight - ((config.pesoMeta - minPeso) / range) * chartHeight;
+        if (metaY >= padding && metaY <= height - padding) {
+            ctx.strokeStyle = '#007AFF';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding, metaY);
+            ctx.lineTo(width - padding, metaY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Label da meta
+            ctx.fillStyle = '#007AFF';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('Meta', width - padding - 40, metaY - 5);
+        }
+    }
+    
+    // Desenhar grade
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+        const y = padding + (chartHeight / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+    }
+    
+    // Desenhar linha
+    ctx.strokeStyle = '#6366f1';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    
+    filteredRegistros.forEach((registro, index) => {
+        const x = padding + (chartWidth / (filteredRegistros.length - 1 || 1)) * index;
+        const y = padding + chartHeight - ((registro.peso - minPeso) / range) * chartHeight;
+        
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    });
+    
+    ctx.stroke();
+    
+    // Desenhar pontos
+    ctx.fillStyle = '#6366f1';
+    filteredRegistros.forEach((registro, index) => {
+        const x = padding + (chartWidth / (filteredRegistros.length - 1 || 1)) * index;
+        const y = padding + chartHeight - ((registro.peso - minPeso) / range) * chartHeight;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    
+    // Labels
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(minPeso.toFixed(1) + ' kg', padding - 10, height - padding);
+    ctx.fillText(maxPeso.toFixed(1) + ' kg', padding - 10, padding + 5);
+    
+    // Adicionar texto motivacional
+    renderMotivationalText(filteredRegistros, periodDays);
+}
+
+function renderMotivationalText(registros, periodDays) {
+    const container = document.querySelector('.chart-container');
+    if (!container) return;
+    
+    let existingText = container.querySelector('.chart-motivational-text');
+    if (existingText) existingText.remove();
+    
+    if (registros.length < 2) return;
+    
+    const primeiroPeso = registros[0].peso;
+    const ultimoPeso = registros[registros.length - 1].peso;
+    const perda = primeiroPeso - ultimoPeso;
+    const mediaSemanal = (perda / (periodDays / 7)).toFixed(2);
+    
+    let text = '';
+    let className = '';
+    
+    if (perda > 0) {
+        if (mediaSemanal > 0.5) {
+            text = `🎉 Você está no caminho certo! Perdeu ${perda.toFixed(1)}kg nos últimos ${periodDays} dias.`;
+            className = 'positive';
+        } else {
+            text = `Você perdeu ${perda.toFixed(1)}kg. Continue assim! 💪`;
+            className = 'positive';
+        }
+    } else if (perda < 0) {
+        text = `Você deu uma pausa, mas ainda dá tempo! 😉`;
+        className = 'warning';
+    } else {
+        text = `Mantenha o foco! Você está estável.`;
+    }
+    
+    if (text) {
+        const textEl = document.createElement('div');
+        textEl.className = `chart-motivational-text ${className}`;
+        textEl.textContent = text;
+        container.appendChild(textEl);
+    }
+}
+
+// ==================== ANTES X DEPOIS ====================
+
+function renderBeforeAfter() {
+    const container = document.getElementById('before-after-content');
+    if (!container) return;
+    
+    const registros = getRegistros();
+    const registrosComFoto = registros.filter(r => r.fotoFrente || r.fotoLado);
+    
+    if (registrosComFoto.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Adicione fotos para ver sua evolução visual</p>';
+        return;
+    }
+    
+    const primeiraFoto = registrosComFoto[0];
+    const ultimaFoto = registrosComFoto[registrosComFoto.length - 1];
+    
+    let foto1 = primeiraFoto.fotoFrente || primeiraFoto.fotoLado;
+    let foto2 = ultimaFoto.fotoFrente || ultimaFoto.fotoLado;
+    
+    // Buscar do IndexedDB se necessário
+    Promise.all([
+        foto1 ? Promise.resolve(foto1) : getPhotoFromDB('frente', primeiraFoto.data),
+        foto2 ? Promise.resolve(foto2) : getPhotoFromDB('frente', ultimaFoto.data)
+    ]).then(([f1, f2]) => {
+        if (!f1 || !f2) {
+            container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Adicione mais fotos para comparação</p>';
+            return;
+        }
+        
+        container.innerHTML = `
+            <div class="before-after-grid">
+                <div class="before-after-item">
+                    <img src="${f1}" alt="Antes">
+                    <div class="before-after-label">${new Date(primeiraFoto.data).toLocaleDateString('pt-BR')}</div>
+                </div>
+                <div class="before-after-item">
+                    <img src="${f2}" alt="Depois">
+                    <div class="before-after-label">${new Date(ultimaFoto.data).toLocaleDateString('pt-BR')}</div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// ==================== NOTIFICAÇÕES ====================
+
+function setupNotifications() {
+    const config = getConfig();
+    if (!config.lembreteAtivo) return;
+    
+    // Limpar notificações anteriores
+    if (window.notificationTimeout) {
+        clearTimeout(window.notificationTimeout);
+    }
+    
+    // Calcular próximo horário
+    const [hours, minutes] = config.lembreteHorario.split(':').map(Number);
+    const now = new Date();
+    const nextNotification = new Date();
+    nextNotification.setHours(hours, minutes, 0, 0);
+    
+    // Se já passou hoje, agendar para amanhã
+    if (nextNotification < now) {
+        nextNotification.setDate(nextNotification.getDate() + 1);
+    }
+    
+    const msUntilNotification = nextNotification - now;
+    
+    window.notificationTimeout = setTimeout(() => {
+        sendNotification('Hora de registrar seu peso! 💪');
+        // Agendar próxima notificação (24h depois)
+        setupNotifications();
+    }, msUntilNotification);
+}
+
+function sendNotification(message) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('FitTrack Pro', {
+            body: message,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            tag: 'fittrack-reminder'
+        });
+    }
+}
+
+// Verificar notificações pendentes
+function checkPendingNotifications() {
+    const registros = getRegistros();
+    const hoje = new Date().toISOString().split('T')[0];
+    const temRegistroHoje = registros.some(r => r.data === hoje);
+    
+    if (!temRegistroHoje && Notification.permission === 'granted') {
+        const ultimoRegistro = registros.length > 0 ? registros[registros.length - 1] : null;
+        if (ultimoRegistro) {
+            const diasSemRegistro = Math.floor((new Date() - new Date(ultimoRegistro.data)) / (1000 * 60 * 60 * 24));
+            if (diasSemRegistro >= 2) {
+                sendNotification('Você não registra há 2 dias. Que tal registrar agora?');
+            }
+        }
+    }
 }
 
 // ==================== INICIALIZAÇÃO FINAL ====================

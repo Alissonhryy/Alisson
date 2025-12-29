@@ -4,8 +4,8 @@
   "description": "Acompanhamento de peso, medidas corporais e treinos personalizados",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0e27",
-  "theme_color": "#6366f1",
+  "background_color": "#000000",
+  "theme_color": "#007AFF",
   "orientation": "portrait-primary",
   "icons": [
     {
