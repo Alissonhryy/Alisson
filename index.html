@@ -2,290 +2,222 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0f0f23">
-    <meta name="description" content="FitTrack Pro - Acompanhamento de Peso e Progresso">
-    <title>FitTrack Pro - Acompanhamento de Peso</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="manifest" href="./manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FitTrack Pro - Acompanhamento de peso, medidas e treinos personalizados">
+    <meta name="theme-color" content="#0a0e27">
+    <title>FitTrack Pro</title>
+    <link rel="manifest" href="manifest.json">
     <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #141b2d;
+            --bg-card: #1a2332;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border-radius: 16px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: #1a1a2e;
-            --bg-card: #16213e;
-            --bg-card-hover: #1f3460;
-            --accent-primary: #e94560;
-            --accent-secondary: #ff6b9d;
-            --accent-gradient: linear-gradient(135deg, #e94560 0%, #ff6b9d 50%, #c44569 100%);
-            --accent-glow: 0 0 30px rgba(233, 69, 96, 0.4);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0c0;
-            --text-muted: #6c6c8a;
-            --success: #00d9a5;
-            --warning: #ffd93d;
-            --error: #e94560;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --glass: rgba(255, 255, 255, 0.05);
-            --schema-version: '2.0';
-        }
-
-        /* TEMA CLARO */
-        [data-theme="light"] {
-            --bg-primary: #f5f7fa;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --bg-card-hover: #f0f2f5;
-            --text-primary: #1a1a2e;
-            --text-secondary: #6c6c8a;
-            --text-muted: #a0a0c0;
-            --border-color: rgba(0, 0, 0, 0.1);
-            --glass: rgba(0, 0, 0, 0.05);
-        }
-
-        [data-theme="light"] body {
-            background-image: 
-                radial-gradient(ellipse at 10% 20%, rgba(233, 69, 96, 0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at 90% 80%, rgba(0, 217, 165, 0.04) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(255, 107, 157, 0.03) 0%, transparent 70%);
-        }
-
         body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-primary);
-            background-image: 
-                radial-gradient(ellipse at 10% 20%, rgba(233, 69, 96, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 90% 80%, rgba(0, 217, 165, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(255, 107, 157, 0.04) 0%, transparent 70%);
             color: var(--text-primary);
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
             min-height: 100vh;
-            overflow-x: hidden;
-            transition: background 0.3s ease, color 0.3s ease;
-            width: 100%;
-            max-width: 100vw;
-            box-sizing: border-box;
+            transition: var(--transition);
         }
 
-        * {
-            box-sizing: border-box;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
         }
 
-        html {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
+        @media (min-width: 769px) {
+            .container {
+                padding: 30px;
+                padding-left: 100px;
+            }
         }
 
-        /* SKELETON LOADING */
-        .skeleton {
-            background: linear-gradient(90deg, var(--glass) 25%, var(--bg-card-hover) 50%, var(--glass) 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s ease-in-out infinite;
-            border-radius: 12px;
-        }
-
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .skeleton-text {
-            height: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .skeleton-card {
-            height: 150px;
-        }
-
-        /* SIDEBAR NAVIGATION */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            height: 70px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            border-right: none;
+        /* Header */
+        .header {
             display: flex;
-            flex-direction: row;
+            justify-content: space-between;
             align-items: center;
-            padding: 0 10px;
-            z-index: 100;
-            transition: background 0.3s ease;
-            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px 0;
         }
 
-        .sidebar:hover {
-            width: 100%;
+        .header h1 {
+            font-size: 28px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .logo {
-            display: none;
+        .theme-toggle {
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
         }
 
-        .nav-menu {
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
-            flex-direction: row;
-            gap: 5px;
-            width: 100%;
-            padding: 0;
             justify-content: space-around;
+            padding: 15px;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (min-width: 769px) {
+            .nav {
+                top: 0;
+                left: 0;
+                bottom: auto;
+                right: auto;
+                width: 80px;
+                height: 100vh;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 30px;
+                border-top: none;
+                border-right: 1px solid rgba(255, 255, 255, 0.1);
+            }
         }
 
         .nav-item {
             display: flex;
-            align-items: center;
-            justify-content: center;
             flex-direction: column;
-            gap: 4px;
-            padding: 12px 8px;
+            align-items: center;
+            gap: 5px;
+            padding: 10px;
             border-radius: 12px;
             cursor: pointer;
+            transition: var(--transition);
             color: var(--text-secondary);
-            transition: all 0.3s ease;
-            flex: 1;
-            max-width: 80px;
-        }
-
-        .nav-item i {
-            font-size: 1.2rem;
-            min-width: auto;
-            text-align: center;
-        }
-
-        .nav-item span {
-            opacity: 1;
-            transition: opacity 0.3s ease;
-            font-size: 0.7rem;
-            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
         }
 
         .nav-item:hover {
-            background: var(--glass);
-            color: var(--text-primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-primary);
         }
 
         .nav-item.active {
             background: var(--accent-gradient);
-            color: white;
-            box-shadow: var(--accent-glow);
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            margin-left: 0;
-            margin-bottom: 70px;
-            padding: 20px;
-            min-height: calc(100vh - 70px);
-            transition: margin-left 0.3s ease;
-            max-width: 100%;
-            overflow-x: hidden;
-            box-sizing: border-box;
-            width: 100%;
-        }
-
-        /* HEADER */
-        .header {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .header-left h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .header-left p {
-            color: var(--text-secondary);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .theme-toggle {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.2rem;
             color: var(--text-primary);
         }
 
-        .theme-toggle:hover {
-            background: var(--bg-card-hover);
-            transform: scale(1.05);
+        .nav-item i {
+            font-size: 20px;
         }
 
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        /* Sections */
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
             background: var(--bg-card);
-            padding: 10px 20px;
-            border-radius: 50px;
-            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
         }
 
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: var(--accent-gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
 
-        .user-info {
-            text-align: right;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .user-streak {
-            font-size: 0.75rem;
-            color: var(--success);
-        }
-
-        /* DASHBOARD GRID */
-        .dashboard-grid {
+        /* Stats Grid */
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 15px;
             margin-bottom: 30px;
+        }
+
+        @media (min-width: 769px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
         }
 
         .stat-card {
             background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
         }
 
         .stat-card::before {
@@ -293,2410 +225,899 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
+            right: 0;
             height: 4px;
             background: var(--accent-gradient);
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-card.success::before {
-            background: linear-gradient(135deg, #00d9a5, #00b894);
-        }
-
-        .stat-card.warning::before {
-            background: linear-gradient(135deg, #ffd93d, #f9ca24);
-        }
-
-        .stat-card.info::before {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-        }
-
         .stat-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--glass);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--accent-primary);
-            margin-bottom: 15px;
+            font-size: 32px;
+            margin-bottom: 10px;
         }
-
-        .stat-card.success .stat-icon { color: #00d9a5; }
-        .stat-card.warning .stat-icon { color: #ffd93d; }
-        .stat-card.info .stat-icon { color: #74b9ff; }
 
         .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 28px;
+            font-weight: bold;
             margin-bottom: 5px;
         }
 
         .stat-label {
+            font-size: 14px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
         }
 
         .stat-change {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.8rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-            margin-top: 10px;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
         .stat-change.positive {
-            background: rgba(0, 217, 165, 0.15);
-            color: #00d9a5;
+            color: var(--success);
         }
 
         .stat-change.negative {
-            background: rgba(233, 69, 96, 0.15);
-            color: #e94560;
+            color: var(--error);
         }
 
-        /* INSIGHTS CARD */
-        .insights-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 30px;
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .insight-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            padding: 15px;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
             background: var(--bg-secondary);
+            border: 2px solid transparent;
             border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .form-group input.valid {
+            border-color: var(--success);
+        }
+
+        .form-group input.invalid {
+            border-color: var(--error);
+        }
+
+        .form-group .error-message {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-group input.invalid + .error-message {
+            display: block;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 769px) {
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: var(--text-primary);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: var(--text-primary);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Calendar */
+        .calendar {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            background: var(--bg-secondary);
+            border: none;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .calendar-nav:hover {
+            background: var(--accent-primary);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            padding: 5px;
+        }
+
+        .calendar-day:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .calendar-day.today {
+            background: var(--accent-gradient);
+            color: var(--text-primary);
+            font-weight: bold;
+        }
+
+        .calendar-day.has-record::after {
+            content: '✓';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 10px;
+            color: var(--success);
+        }
+
+        .calendar-day.has-workout::after {
+            content: '💪';
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            font-size: 10px;
+        }
+
+        .calendar-day-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
             margin-bottom: 10px;
         }
 
-        .insight-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .insight-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--glass);
-            border-radius: 10px;
+        /* History List */
+        .history-item {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            color: var(--accent-primary);
-            flex-shrink: 0;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
         }
 
-        .insight-content {
-            flex: 1;
+        .history-item:hover {
+            transform: translateX(5px);
         }
 
-        .insight-title {
+        .history-date {
             font-weight: 600;
             margin-bottom: 5px;
         }
 
-        .insight-text {
+        .history-meta {
+            font-size: 12px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
         }
 
-        /* METAS INTELIGENTES */
-        .smart-goal-card {
+        .history-weight {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .history-change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Workout Cards */
+        .workout-card {
             background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 30px;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
         }
 
-        .goal-progress-bar {
-            height: 8px;
-            background: var(--glass);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-
-        .goal-progress-fill {
-            height: 100%;
-            background: var(--accent-gradient);
-            transition: width 0.5s ease;
-        }
-
-        .goal-status {
+        .workout-header {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-radius: 8px;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .workout-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .workout-days {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
             margin-top: 10px;
         }
 
-        .goal-status.on-track {
-            background: rgba(0, 217, 165, 0.15);
-            color: var(--success);
+        .workout-day-badge {
+            background: var(--accent-primary);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
         }
 
-        .goal-status.warning {
-            background: rgba(255, 217, 61, 0.15);
-            color: var(--warning);
+        .workout-actions {
+            display: flex;
+            gap: 10px;
         }
 
-        /* COMPARAÇÃO VISUAL */
-        .comparison-container {
+        .exercise-list {
+            margin-top: 15px;
+        }
+
+        .exercise-item {
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
             background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* Chart */
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart-period {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chart-period.active {
+            background: var(--accent-gradient);
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-card) 50%, var(--bg-secondary) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--border-radius);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-card {
+            height: 120px;
+            margin-bottom: 20px;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .empty-state-text {
+            font-size: 16px;
             margin-bottom: 30px;
         }
 
-        .comparison-slider {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            border-radius: 16px;
-            overflow: hidden;
-            margin: 20px 0;
+        /* Photo Upload */
+        .photo-upload {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .comparison-image {
+        .photo-upload-item {
+            position: relative;
+        }
+
+        .photo-preview {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+        }
+
+        .photo-upload-btn {
             position: absolute;
-            top: 0;
-            left: 0;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Insights */
+        .insight-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent-primary);
+            box-shadow: var(--shadow);
+        }
+
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-primary);
+        }
+
+        .insight-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Streak */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-gradient);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Progress Comparison */
+        .progress-comparison {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .progress-slider {
+            position: relative;
+            height: 400px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .progress-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .comparison-before {
-            clip-path: inset(0 50% 0 0);
-            transition: clip-path 0.3s ease;
-        }
-
-        .comparison-handle {
+        .progress-handle {
             position: absolute;
             top: 0;
-            left: 50%;
+            bottom: 0;
             width: 4px;
-            height: 100%;
             background: var(--accent-primary);
             cursor: ew-resize;
             z-index: 10;
         }
 
-        .comparison-handle::before {
-            content: '';
+        .progress-handle::before {
+            content: '⟷';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
             background: var(--accent-primary);
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
-        }
-
-        /* CONTENT SECTIONS */
-        .content-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            transition: background 0.3s ease;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-title i {
-            color: var(--accent-primary);
-        }
-
-        /* PROGRESS RING */
-        .progress-ring-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .progress-ring {
-            position: relative;
-            width: 200px;
-            height: 200px;
-        }
-
-        .progress-ring svg {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring circle {
-            fill: none;
-            stroke-width: 12;
-        }
-
-        .progress-ring .bg {
-            stroke: var(--glass);
-        }
-
-        .progress-ring .progress {
-            stroke: url(#gradient);
-            stroke-linecap: round;
-            transition: stroke-dashoffset 1s ease;
-        }
-
-        .progress-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-
-        .progress-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
-        .progress-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* CHART AREA */
-        .chart-container {
-            height: 250px;
-            position: relative;
-            width: 100%;
-            max-width: 100%;
-            overflow: hidden;
-        }
-
-        #weightChart {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* CALENDAR */
-        .calendar-container {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            max-width: 100%;
-            overflow: hidden;
-        }
-
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-nav h3 {
-            font-size: 1.1rem;
-        }
-
-        .calendar-nav-btns {
-            display: flex;
-            gap: 10px;
-        }
-
-        .cal-btn {
-            width: 35px;
-            height: 35px;
-            border: none;
-            background: var(--glass);
-            color: var(--text-primary);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .cal-btn:hover {
-            background: var(--accent-primary);
-        }
-
-        .weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-bottom: 10px;
-        }
-
-        .weekday {
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            padding: 10px 0;
-            font-weight: 600;
-        }
-
-        .days-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            max-width: 100%;
-        }
-
-        .day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .day:hover {
-            background: var(--glass);
-        }
-
-        .day.today {
-            border: 2px solid var(--accent-primary);
-        }
-
-        .day.selected {
-            background: var(--accent-gradient);
-            font-weight: 700;
-        }
-
-        .day.has-record::after {
-            content: '';
-            position: absolute;
-            bottom: 4px;
-            width: 6px;
-            height: 6px;
-            background: var(--success);
-            border-radius: 50%;
-        }
-
-        .day.selected.has-record::after {
-            background: white;
-        }
-
-        /* REGISTRO FORM */
-        .form-section {
-            display: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .form-section.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Centralizar apenas formulário de registro */
-        #section-registro {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #section-registro .header {
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-
-        #section-registro > .card {
-            max-width: 600px;
-            width: 100%;
-            margin: 0 auto;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        #section-registro .form-grid {
-            width: 100%;
-            max-width: 100%;
-        }
-
-        #section-registro .form-group {
-            width: 100%;
-            max-width: 100%;
-        }
-
-        #section-registro .form-input {
-            width: 100%;
-            max-width: 100%;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .form-group.full {
-            grid-column: span 1;
-        }
-
-        .form-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .form-input {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--text-primary);
-            font-size: 1.1rem;
-            transition: all 0.3s;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.1);
-        }
-
-        .form-input.error {
-            border-color: var(--error);
-        }
-
-        .form-input.success {
-            border-color: var(--success);
-        }
-
-        .form-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .form-error {
-            color: var(--error);
-            font-size: 0.8rem;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .form-error.show {
-            display: block;
-        }
-
-        /* PHOTO UPLOAD */
-        .photo-upload-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .photo-upload-box {
-            aspect-ratio: 3/4;
-            background: var(--bg-secondary);
-            border: 2px dashed var(--border-color);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .photo-upload-box:hover {
-            border-color: var(--accent-primary);
-            background: var(--bg-card-hover);
-        }
-
-        .photo-upload-box i {
-            font-size: 2rem;
-            color: var(--accent-primary);
-            margin-bottom: 10px;
-        }
-
-        .photo-upload-box span {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .photo-upload-box img {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-
-        .photo-upload-box.has-photo img {
-            display: block;
-        }
-
-        .photo-upload-box.has-photo i,
-        .photo-upload-box.has-photo span {
-            display: none;
-        }
-
-        /* BUTTONS */
-        .btn {
-            padding: 14px 24px;
-            border: none;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .btn-primary {
-            background: var(--accent-gradient);
-            color: white;
-            box-shadow: var(--accent-glow);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-primary.loading {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
-        .btn-primary.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .btn-secondary {
-            background: var(--glass);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 15px;
-        }
-
-        /* DAY DETAILS */
-        .day-detail-card {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .detail-value {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        /* PHOTO GALLERY */
-        .photo-gallery {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .gallery-photo {
-            aspect-ratio: 3/4;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .gallery-photo:hover {
-            transform: scale(1.02);
-        }
-
-        .gallery-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* SETTINGS */
-        .settings-section {
-            margin-bottom: 30px;
-        }
-
-        .settings-title {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .settings-card {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .settings-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .settings-item:last-child {
-            border-bottom: none;
-        }
-
-        .settings-item:hover {
-            background: var(--glass);
-        }
-
-        .settings-item-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .settings-item-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--glass);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-primary);
-        }
-
-        .settings-item-label {
-            font-weight: 500;
-        }
-
-        .settings-item-desc {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* TOGGLE SWITCH */
-        .toggle {
-            width: 50px;
-            height: 28px;
-            background: var(--glass);
-            border-radius: 14px;
-            position: relative;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .toggle.active {
-            background: var(--accent-primary);
-        }
-
-        .toggle::after {
-            content: '';
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            top: 3px;
-            left: 3px;
-            transition: transform 0.3s;
-        }
-
-        .toggle.active::after {
-            transform: translateX(22px);
-        }
-
-        /* MODAL */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .modal {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 30px 20px;
-            max-width: 90%;
-            width: 90%;
-            text-align: center;
-            animation: modalIn 0.3s ease;
-            max-height: 90vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(0, 217, 165, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2.5rem;
-            color: var(--success);
-            animation: checkmark 0.5s ease;
-        }
-
-        @keyframes checkmark {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .modal h2 {
-            margin-bottom: 10px;
-        }
-
-        .modal p {
-            color: var(--text-secondary);
-            margin-bottom: 25px;
-        }
-
-        /* HISTORY LIST */
-        .history-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            transition: all 0.2s;
-        }
-
-        .history-item:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .history-date {
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .history-day {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-        }
-
-        .history-month {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .history-info {
-            flex: 1;
-        }
-
-        .history-weight {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .history-meta {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .history-change {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .history-change.down {
-            background: rgba(0, 217, 165, 0.15);
-            color: var(--success);
-        }
-
-        .history-change.up {
-            background: rgba(233, 69, 96, 0.15);
-            color: var(--accent-primary);
-        }
-
-        /* NOTAS */
-        .notes-textarea {
-            width: 100%;
-            max-width: 100%;
-            min-height: 100px;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            resize: vertical;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-
-        .notes-textarea:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        /* ESTADOS VAZIOS */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }
-
-        .empty-state p {
-            margin-bottom: 25px;
-            color: var(--text-secondary);
-        }
-
-        /* TREINOS */
-        .workout-today-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid var(--accent-primary);
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .workout-today-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--accent-gradient);
-        }
-
-        .workout-today-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .workout-today-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .workout-today-meta {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .workout-today-meta i {
-            color: var(--accent-primary);
-        }
-
-        .workout-exercises-list {
-            margin: 20px 0;
-        }
-
-        .workout-exercise-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-
-        .workout-exercise-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .workout-exercise-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            object-fit: cover;
-            background: var(--glass);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .workout-exercise-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-
-        .workout-exercise-info {
-            flex: 1;
-        }
-
-        .workout-exercise-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .workout-exercise-details {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .workout-exercise-details span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .workout-execution {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-        }
-
-        .workout-execution-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .workout-execution-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-
-        .workout-execution-progress {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .workout-execution-exercise {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .workout-execution-exercise.active {
-            border: 2px solid var(--accent-primary);
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.2);
-        }
-
-        .workout-execution-exercise.completed {
-            opacity: 0.6;
-        }
-
-        .workout-execution-exercise-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .workout-execution-exercise-image {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: var(--glass);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 2rem;
-            flex-shrink: 0;
-        }
-
-        .workout-execution-exercise-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-        }
-
-        .workout-execution-exercise-info {
-            flex: 1;
-        }
-
-        .workout-execution-exercise-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .workout-execution-exercise-meta {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .workout-execution-sets {
-            margin-top: 20px;
-        }
-
-        .workout-set-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px;
-            background: var(--bg-card);
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .workout-set-number {
             width: 30px;
             height: 30px;
-            background: var(--glass);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-        .workout-set-item.completed .workout-set-number {
-            background: var(--success);
             color: white;
+            font-size: 16px;
         }
 
-        .workout-set-details {
-            flex: 1;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            font-size: 0.9rem;
-        }
-
-        .workout-set-checkbox {
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .workout-set-checkbox.checked {
-            background: var(--success);
-            border-color: var(--success);
-        }
-
-        .workout-set-checkbox.checked::after {
-            content: '✓';
-            color: white;
-            font-weight: 700;
-        }
-
-        .workout-rest-timer {
-            background: var(--accent-gradient);
-            color: white;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 20px 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .workout-rest-timer.hidden {
-            display: none;
-        }
-
-        .workout-list-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .workout-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .workout-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .workout-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .workout-card-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .workout-card-status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .workout-card-status.active {
-            background: rgba(0, 217, 165, 0.15);
-            color: var(--success);
-        }
-
-        .workout-card-status.inactive {
-            background: rgba(108, 108, 138, 0.15);
-            color: var(--text-muted);
-        }
-
-        .workout-card-days {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .workout-day-badge {
-            padding: 4px 10px;
-            background: var(--glass);
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .workout-card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .workout-card-actions .btn {
-            flex: 1;
-            padding: 12px;
-            font-size: 0.9rem;
-        }
-
-        .workout-editor-modal {
-            max-width: 95%;
-            width: 95%;
-            max-height: 90vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-
-        .workout-editor-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .workout-editor-form .form-group {
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .workout-editor-form .form-input,
-        .workout-editor-form .notes-textarea {
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .workout-editor-days {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .workout-day-checkbox {
-            display: none;
-        }
-
-        .workout-day-label {
-            padding: 10px 20px;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-        }
-
-        .workout-day-checkbox:checked + .workout-day-label {
-            background: var(--accent-gradient);
-            border-color: var(--accent-primary);
-            color: white;
-        }
-
-        .workout-exercises-editor {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .workout-exercise-editor-item {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .workout-exercise-editor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .workout-exercise-editor-remove {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            background: rgba(233, 69, 96, 0.15);
-            color: var(--accent-primary);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .workout-exercise-editor-remove:hover {
-            background: rgba(233, 69, 96, 0.25);
-        }
-
-        .workout-exercise-editor-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            min-width: 0;
-        }
-
-        /* Centralizar formulários de exercícios no editor */
-        .workout-exercise-editor-item {
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-            min-width: 0;
-        }
-
-        .workout-exercise-editor-item .form-group {
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            min-width: 0;
-        }
-
-        .workout-exercise-editor-item .form-input,
-        .workout-exercise-editor-item .notes-textarea {
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            min-width: 0;
-        }
-
-        .workout-exercise-editor-grid .form-group {
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-            min-width: 0;
-        }
-
-        .workout-exercise-editor-image {
-            grid-column: span 1;
-            aspect-ratio: 16/9;
-            background: var(--bg-card);
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .workout-exercise-editor-image:hover {
-            border-color: var(--accent-primary);
-        }
-
-        .workout-exercise-editor-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .workout-exercise-editor-image.has-image .workout-exercise-editor-image-placeholder {
-            display: none;
-        }
-
-        .workout-exercise-editor-image-placeholder {
-            text-align: center;
-            color: var(--text-muted);
-        }
-
-        .workout-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .workout-stat-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .workout-stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-            margin-bottom: 5px;
-        }
-
-        .workout-stat-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .workout-history-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-
-        .workout-history-date {
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .workout-history-day {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-        }
-
-        .workout-history-month {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .workout-history-info {
-            flex: 1;
-        }
-
-        .workout-history-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .workout-history-meta {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* SCROLLBAR */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-primary);
-        }
-
-        /* RESPONSIVO - DESKTOP */
-        @media (min-width: 769px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                bottom: auto;
-                width: 80px;
-                height: 100vh;
-                flex-direction: column;
-                border-right: 1px solid var(--border-color);
-                border-top: none;
-                padding: 20px 0;
-                justify-content: flex-start;
-            }
-
-            .sidebar:hover {
-                width: 200px;
-            }
-
-            .logo {
-                display: flex;
-                width: 50px;
-                height: 50px;
-                background: var(--accent-gradient);
-                border-radius: 15px;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                margin-bottom: 40px;
-                box-shadow: var(--accent-glow);
-                cursor: pointer;
-            }
-
-            .nav-menu {
-                flex-direction: column;
-                gap: 10px;
-                width: 100%;
-                padding: 0 12px;
-                justify-content: flex-start;
-            }
-
-            .nav-item {
-                flex-direction: row;
-                gap: 15px;
-                padding: 15px;
-                max-width: none;
-            }
-
-            .nav-item i {
-                font-size: 1.3rem;
-                min-width: 24px;
-            }
-
-            .nav-item span {
-                opacity: 0;
-                font-size: 1rem;
-            }
-
-            .sidebar:hover .nav-item span {
-                opacity: 1;
-            }
-
-            .main-content {
-                margin-left: 80px;
-                margin-bottom: 0;
-                padding: 30px;
-                align-items: flex-start;
-            }
-
-            .form-section.active {
-                display: block;
-            }
-
-            #section-registro > .card {
-                max-width: 800px;
-                margin: 0 auto;
-            }
-
-            .workout-exercise-editor-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .header {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                text-align: left;
-            }
-
-            .header-left h1 {
-                font-size: 2rem;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
-            }
-
-            .form-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-
-            .photo-upload-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .stat-card {
-                padding: 25px;
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
             }
 
             .stat-value {
-                font-size: 2rem;
+                font-size: 24px;
             }
 
-            .card {
-                padding: 25px;
+            .modal-content {
+                padding: 20px;
             }
+        }
 
-            .content-row {
-                grid-template-columns: 2fr 1fr;
-            }
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
 
-            .workout-list-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
+        .mb-20 {
+            margin-bottom: 20px;
+        }
 
-            .workout-stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }
+        .mt-20 {
+            margin-top: 20px;
+        }
 
-            .btn {
-                width: auto;
-                padding: 16px 32px;
-            }
-
-            .chart-container {
-                height: 300px;
-            }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- SIDEBAR -->
-    <nav class="sidebar">
-        <div class="logo" data-action="toggle-theme">
-            <i class="fas fa-heartbeat"></i>
-        </div>
-        <div class="nav-menu">
-            <div class="nav-item active" data-section="dashboard">
-                <i class="fas fa-home"></i>
+    <div class="container">
+        <header class="header">
+            <h1>💪 FitTrack Pro</h1>
+            <button class="theme-toggle" data-action="toggle-theme" aria-label="Alternar tema">🌓</button>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <i>📊</i>
                 <span>Dashboard</span>
-            </div>
-            <div class="nav-item" data-section="registro">
-                <i class="fas fa-plus-circle"></i>
-                <span>Registrar</span>
-            </div>
-            <div class="nav-item" data-section="historico">
-                <i class="fas fa-history"></i>
+            </a>
+            <a href="#" class="nav-item" data-section="registro">
+                <i>➕</i>
+                <span>Registro</span>
+            </a>
+            <a href="#" class="nav-item" data-section="historico">
+                <i>📅</i>
                 <span>Histórico</span>
-            </div>
-            <div class="nav-item" data-section="treinos">
-                <i class="fas fa-dumbbell"></i>
+            </a>
+            <a href="#" class="nav-item" data-section="treinos">
+                <i>🏋️</i>
                 <span>Treinos</span>
-            </div>
-            <div class="nav-item" data-section="config">
-                <i class="fas fa-cog"></i>
-                <span>Configurações</span>
-            </div>
-        </div>
-    </nav>
+            </a>
+            <a href="#" class="nav-item" data-section="configuracoes">
+                <i>⚙️</i>
+                <span>Config</span>
+            </a>
+        </nav>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        <!-- DASHBOARD SECTION -->
-        <section id="section-dashboard" class="form-section active">
-            <div class="header">
-                <div class="header-left">
-                    <h1>Olá! 👋</h1>
-                    <p id="greeting-text">Vamos acompanhar seu progresso hoje!</p>
-                </div>
-                <div class="header-actions">
-                    <div class="theme-toggle" data-action="toggle-theme" title="Alternar tema">
-                        <i class="fas fa-moon"></i>
-                    </div>
-                    <div class="user-profile">
-                        <div class="user-info">
-                            <div class="user-name" id="user-name-display">Usuário</div>
-                            <div class="user-streak"><i class="fas fa-fire"></i> <span id="streak-count">0</span> dias de sequência</div>
-                        </div>
-                        <div class="user-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    </div>
-                </div>
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="streak-badge" id="streak-badge">
+                🔥 <span id="streak-count">0</span> dias consecutivos
             </div>
 
-            <!-- STATS CARDS -->
-            <div class="dashboard-grid" id="dashboard-stats">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-weight"></i></div>
-                    <div class="stat-value" id="current-weight">--</div>
-                    <div class="stat-label">Peso Atual</div>
-                    <div class="stat-change positive" id="weight-change">
-                        <i class="fas fa-arrow-down"></i> -- kg
-                    </div>
-                </div>
-                <div class="stat-card success">
-                    <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
-                    <div class="stat-value" id="goal-weight">65 kg</div>
-                    <div class="stat-label">Meta</div>
-                    <div class="stat-change positive" id="remaining-weight">
-                        <i class="fas fa-flag"></i> Faltam -- kg
-                    </div>
-                </div>
-                <div class="stat-card warning">
-                    <div class="stat-icon"><i class="fas fa-fire-alt"></i></div>
-                    <div class="stat-value" id="total-lost">--</div>
-                    <div class="stat-label">Total Perdido</div>
-                    <div class="stat-change positive">
-                        <i class="fas fa-trophy"></i> Continue assim!
-                    </div>
-                </div>
-                <div class="stat-card info">
-                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="stat-value" id="total-records">0</div>
-                    <div class="stat-label">Registros</div>
-                    <div class="stat-change positive">
-                        <i class="fas fa-chart-line"></i> Ativo
-                    </div>
-                </div>
+            <div class="stats-grid" id="stats-grid">
+                <!-- Stats will be rendered here -->
             </div>
 
-            <!-- METAS INTELIGENTES -->
-            <div class="smart-goal-card" id="smart-goal-card" style="display: none;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-bullseye"></i>
-                        Meta Semanal
-                    </div>
-                </div>
-                <div id="smart-goal-content"></div>
+            <div class="card" id="meta-card">
+                <h2 style="margin-bottom: 15px;">Meta Semanal</h2>
+                <div id="meta-info"></div>
             </div>
 
-            <!-- INSIGHTS -->
-            <div class="insights-card" id="insights-card" style="display: none;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-lightbulb"></i>
-                        Insights Automáticos
-                    </div>
-                </div>
-                <div id="insights-content"></div>
+            <div class="insight-card" id="insights-container">
+                <!-- Insights will be rendered here -->
             </div>
 
-            <!-- CHART AND PROGRESS -->
-            <div class="content-row">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="fas fa-chart-area"></i>
-                            Evolução do Peso
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn btn-secondary" data-chart-period="7">7D</button>
-                            <button class="btn btn-secondary" data-chart-period="30">30D</button>
-                            <button class="btn btn-secondary" data-chart-period="90">90D</button>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="weightChart"></canvas>
-                    </div>
+            <div class="chart-container">
+                <div class="chart-controls">
+                    <button class="chart-period active" data-period="7">7 dias</button>
+                    <button class="chart-period" data-period="30">30 dias</button>
+                    <button class="chart-period" data-period="90">3 meses</button>
+                    <button class="chart-period" data-period="365">1 ano</button>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="fas fa-trophy"></i>
-                            Progresso da Meta
-                        </div>
-                    </div>
-                    <div class="progress-ring-container">
-                        <div class="progress-ring">
-                            <svg width="200" height="200">
-                                <defs>
-                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#e94560"/>
-                                        <stop offset="100%" stop-color="#ff6b9d"/>
-                                    </linearGradient>
-                                </defs>
-                                <circle class="bg" cx="100" cy="100" r="85"/>
-                                <circle class="progress" id="progress-circle" cx="100" cy="100" r="85" 
-                                    stroke-dasharray="534" stroke-dashoffset="534"/>
-                            </svg>
-                            <div class="progress-center">
-                                <div class="progress-value" id="progress-percent">0%</div>
-                                <div class="progress-label">concluído</div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 20px; text-align: center;">
-                            <p style="color: var(--text-secondary); margin-bottom: 10px;">
-                                <i class="fas fa-info-circle"></i> Baseado no peso inicial
-                            </p>
-                            <div style="font-size: 0.9rem;">
-                                <span id="initial-weight-display">88.0 kg</span> → 
-                                <span style="color: var(--success);" id="goal-weight-display">65.0 kg</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <canvas id="weight-chart" width="400" height="200"></canvas>
             </div>
 
-            <!-- COMPARAÇÃO VISUAL -->
-            <div class="comparison-container" id="comparison-container" style="display: none;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-images"></i>
-                        Comparação de Progresso
-                    </div>
-                </div>
-                <div class="comparison-slider" id="comparison-slider">
-                    <img class="comparison-image comparison-before" id="comparison-before" alt="Antes">
-                    <img class="comparison-image" id="comparison-after" alt="Depois">
-                    <div class="comparison-handle" id="comparison-handle"></div>
-                </div>
-                <p style="text-align: center; color: var(--text-secondary); margin-top: 15px;">
-                    <i class="fas fa-info-circle"></i> Arraste a linha para comparar
-                </p>
-            </div>
-
-            <!-- CALENDAR -->
-            <div class="calendar-container">
-                <div class="calendar-nav">
-                    <div class="calendar-nav-btns">
-                        <button class="cal-btn" data-calendar-action="prev">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                    </div>
-                    <h3 id="calendar-month-year">Janeiro 2025</h3>
-                    <div class="calendar-nav-btns">
-                        <button class="cal-btn" data-calendar-action="next">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="weekdays">
-                    <div class="weekday">Dom</div>
-                    <div class="weekday">Seg</div>
-                    <div class="weekday">Ter</div>
-                    <div class="weekday">Qua</div>
-                    <div class="weekday">Qui</div>
-                    <div class="weekday">Sex</div>
-                    <div class="weekday">Sáb</div>
-                </div>
-                <div class="days-grid" id="calendar-days"></div>
-                
-                <div class="day-detail-card" id="day-details">
-                    <p style="text-align: center; color: var(--text-muted);">
-                        Selecione um dia para ver os detalhes
-                    </p>
-                </div>
+            <div class="card" id="progress-comparison-container">
+                <h2 style="margin-bottom: 15px;">Comparação de Progresso</h2>
+                <div id="progress-comparison"></div>
             </div>
         </section>
 
-        <!-- REGISTRO SECTION -->
-        <section id="section-registro" class="form-section">
-            <div class="header">
-                <div class="header-left">
-                    <h1>Novo Registro 📝</h1>
-                    <p>Registre suas medidas de hoje</p>
-                </div>
+        <!-- Registro Section -->
+        <section id="registro" class="section">
+            <div class="card">
+                <h2 style="margin-bottom: 20px;">Novo Registro</h2>
+                <form id="registro-form">
+                    <div class="form-group">
+                        <label for="registro-data">Data *</label>
+                        <input type="date" id="registro-data" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registro-peso">Peso (kg) *</label>
+                        <input type="number" id="registro-peso" step="0.1" min="0" required>
+                        <div class="error-message" id="peso-error"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registro-cintura">Cintura (cm)</label>
+                            <input type="number" id="registro-cintura" step="0.1" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="registro-agua">Água (litros)</label>
+                            <input type="number" id="registro-agua" step="0.1" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registro-sono">Sono (horas)</label>
+                            <input type="number" id="registro-sono" step="0.5" min="0" max="24">
+                            <div class="error-message" id="sono-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registro-observacao">Observações</label>
+                        <textarea id="registro-observacao" rows="3"></textarea>
+                    </div>
+
+                    <div class="photo-upload">
+                        <div class="photo-upload-item">
+                            <label>Foto Frente</label>
+                            <img id="preview-frente" class="photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E" alt="Preview frente">
+                            <input type="file" id="foto-frente" accept="image/*" style="display: none;">
+                            <button type="button" class="photo-upload-btn" onclick="document.getElementById('foto-frente').click()">Adicionar Foto</button>
+                        </div>
+                        <div class="photo-upload-item">
+                            <label>Foto Lado</label>
+                            <img id="preview-lado" class="photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='133'%3E%3Crect fill='%23141b2d' width='100' height='133'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='12'%3ESem foto%3C/text%3E%3C/svg%3E" alt="Preview lado">
+                            <input type="file" id="foto-lado" accept="image/*" style="display: none;">
+                            <button type="button" class="photo-upload-btn" onclick="document.getElementById('foto-lado').click()">Adicionar Foto</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        💾 Salvar Registro
+                    </button>
+                </form>
             </div>
 
             <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-edit"></i>
-                        Dados do Dia
-                    </div>
-                    <span style="color: var(--text-secondary);" id="register-date"></span>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-weight"></i> Peso (kg) *
-                        </label>
-                        <input type="number" class="form-input" id="input-peso" placeholder="Ex: 75.5" step="0.1" inputmode="decimal">
-                        <div class="form-error" id="error-peso"></div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-ruler"></i> Cintura (cm)
-                        </label>
-                        <input type="number" class="form-input" id="input-cintura" placeholder="Ex: 80" inputmode="numeric">
-                        <div class="form-error" id="error-cintura"></div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-tint"></i> Água (litros)
-                        </label>
-                        <input type="number" class="form-input" id="input-agua" placeholder="Ex: 2.5" step="0.1" inputmode="decimal">
-                        <div class="form-error" id="error-agua"></div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-bed"></i> Sono (horas)
-                        </label>
-                        <input type="number" class="form-input" id="input-sono" placeholder="Ex: 7" step="0.5" inputmode="decimal" max="24">
-                        <div class="form-error" id="error-sono"></div>
-                    </div>
-                    <div class="form-group full">
-                        <label class="form-label">
-                            <i class="fas fa-sticky-note"></i> Observações
-                        </label>
-                        <textarea class="notes-textarea" id="input-notas" placeholder="Como você está se sentindo hoje? Alguma observação importante?"></textarea>
-                    </div>
-                </div>
-
-                <div class="card-header" style="margin-top: 10px;">
-                    <div class="card-title">
-                        <i class="fas fa-camera"></i>
-                        Fotos de Progresso
-                    </div>
-                </div>
-
-                <div class="photo-upload-grid" style="grid-template-columns: repeat(2, 1fr);">
-                    <div class="photo-upload-box" data-photo-type="frente">
-                        <input type="file" id="photo-frente" accept="image/*" hidden>
-                        <img id="preview-frente">
-                        <i class="fas fa-camera"></i>
-                        <span>Frente</span>
-                    </div>
-                    <div class="photo-upload-box" data-photo-type="lado">
-                        <input type="file" id="photo-lado" accept="image/*" hidden>
-                        <img id="preview-lado">
-                        <i class="fas fa-camera"></i>
-                        <span>Lado</span>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" style="width: 100%;" id="btn-save-record">
-                    <i class="fas fa-save"></i>
-                    Salvar Registro
-                </button>
+                <h2 style="margin-bottom: 20px;">Calendário</h2>
+                <div id="calendar-container"></div>
             </div>
         </section>
 
-        <!-- HISTORICO SECTION -->
-        <section id="section-historico" class="form-section">
-            <div class="header">
-                <div class="header-left">
-                    <h1>Histórico 📊</h1>
-                    <p>Todos os seus registros</p>
-                </div>
-                <button class="btn btn-secondary" data-action="export-data">
-                    <i class="fas fa-download"></i>
-                    Exportar
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-list"></i>
-                        Registros Recentes
-                    </div>
-                </div>
-                <div class="history-list" id="history-list">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <h3>Nenhum registro ainda</h3>
-                        <p>Comece hoje. Seu primeiro registro leva menos de 1 minuto.</p>
-                        <button class="btn btn-primary" data-section="registro">
-                            <i class="fas fa-plus"></i>
-                            Criar Primeiro Registro
-                        </button>
-                    </div>
-                </div>
+        <!-- Histórico Section -->
+        <section id="historico" class="section">
+            <div id="historico-list">
+                <!-- History items will be rendered here -->
             </div>
         </section>
 
-        <!-- TREINOS SECTION -->
-        <section id="section-treinos" class="form-section">
-            <div class="header">
-                <div class="header-left">
-                    <h1>Treinos 💪</h1>
-                    <p>Gerencie seus treinos personalizados</p>
+        <!-- Treinos Section -->
+        <section id="treinos" class="section">
+            <div class="card" id="treino-do-dia-card">
+                <h2 style="margin-bottom: 15px;">Treino do Dia</h2>
+                <div id="treino-do-dia-content">
+                    <!-- Today's workout will be rendered here -->
                 </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Meus Treinos</h2>
                 <button class="btn btn-primary" data-action="create-workout">
-                    <i class="fas fa-plus"></i>
-                    Novo Treino
+                    ➕ Novo Treino
                 </button>
             </div>
 
-            <!-- TREINO DO DIA -->
-            <div id="workout-today-container" style="display: none;">
-                <div class="workout-today-card">
-                    <div class="workout-today-header">
-                        <div>
-                            <div class="workout-today-title" id="workout-today-title">Treino do Dia</div>
-                            <div class="workout-today-meta">
-                                <span><i class="fas fa-clock"></i> <span id="workout-today-time">-- min</span></span>
-                                <span><i class="fas fa-dumbbell"></i> <span id="workout-today-exercises-count">-- exercícios</span></span>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" id="btn-start-workout">
-                            <i class="fas fa-play"></i>
-                            Iniciar Treino
-                        </button>
-                    </div>
-                    <div class="workout-exercises-list" id="workout-today-exercises"></div>
-                </div>
+            <div id="treinos-list">
+                <!-- Workout cards will be rendered here -->
             </div>
+        </section>
 
-            <!-- EXECUÇÃO DO TREINO -->
-            <div id="workout-execution-container" style="display: none;">
-                <div class="workout-execution">
-                    <div class="workout-execution-header">
-                        <div>
-                            <div class="workout-execution-title" id="workout-execution-title">Executando Treino</div>
-                            <div class="workout-execution-progress" id="workout-execution-progress">0 de 0 exercícios</div>
-                        </div>
-                        <button class="btn btn-secondary" data-action="cancel-workout">
-                            <i class="fas fa-times"></i>
-                            Cancelar
-                        </button>
-                    </div>
-                    <div id="workout-execution-exercises"></div>
-                    <div class="workout-rest-timer hidden" id="workout-rest-timer">
-                        <div>Descanso</div>
-                        <div id="rest-timer-value">00:00</div>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" id="btn-finish-workout" style="display: none;">
-                        <i class="fas fa-check"></i>
-                        Finalizar Treino
-                    </button>
-                </div>
-            </div>
-
-            <!-- ESTATÍSTICAS -->
-            <div class="workout-stats-grid" id="workout-stats-grid">
-                <div class="workout-stat-card">
-                    <div class="workout-stat-value" id="workout-stat-total">0</div>
-                    <div class="workout-stat-label">Treinos Realizados</div>
-                </div>
-                <div class="workout-stat-card">
-                    <div class="workout-stat-value" id="workout-stat-streak">0</div>
-                    <div class="workout-stat-label">Dias de Sequência</div>
-                </div>
-                <div class="workout-stat-card">
-                    <div class="workout-stat-value" id="workout-stat-adherence">0%</div>
-                    <div class="workout-stat-label">Adesão Semanal</div>
-                </div>
-                <div class="workout-stat-card">
-                    <div class="workout-stat-value" id="workout-stat-week">0</div>
-                    <div class="workout-stat-label">Esta Semana</div>
-                </div>
-            </div>
-
-            <!-- LISTA DE TREINOS -->
+        <!-- Configurações Section -->
+        <section id="configuracoes" class="section">
             <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-list"></i>
-                        Meus Treinos
+                <h2 style="margin-bottom: 20px;">Configurações</h2>
+                <form id="config-form">
+                    <div class="form-group">
+                        <label for="config-nome">Nome</label>
+                        <input type="text" id="config-nome" placeholder="Seu nome">
                     </div>
-                </div>
-                <div id="workout-list-container">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💪</div>
-                        <h3>Nenhum treino criado</h3>
-                        <p>Crie seu primeiro treino personalizado e comece a treinar!</p>
-                        <button class="btn btn-primary" data-action="create-workout">
-                            <i class="fas fa-plus"></i>
-                            Criar Primeiro Treino
-                        </button>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="config-peso-meta">Peso Meta (kg)</label>
+                            <input type="number" id="config-peso-meta" step="0.1" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="config-prazo-meta">Prazo da Meta (meses)</label>
+                            <input type="number" id="config-prazo-meta" min="1">
+                        </div>
                     </div>
-                </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="config-lembrete-ativo">
+                            Ativar lembretes
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="config-lembrete-horario">Horário do Lembrete</label>
+                        <input type="time" id="config-lembrete-horario">
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="config-tema-escuro" checked>
+                            Tema escuro
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        💾 Salvar Configurações
+                    </button>
+                </form>
             </div>
 
-            <!-- HISTÓRICO -->
-            <div class="card" style="margin-top: 30px;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-history"></i>
-                        Histórico de Treinos
-                    </div>
-                </div>
-                <div id="workout-history-container">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <h3>Nenhum treino realizado</h3>
-                        <p>Comece a treinar para ver seu histórico aqui!</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CONFIG SECTION -->
-        <section id="section-config" class="form-section">
-            <div class="header">
-                <div class="header-left">
-                    <h1>Configurações ⚙️</h1>
-                    <p>Personalize seu aplicativo</p>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <div class="settings-title">Perfil</div>
-                <div class="settings-card">
-                    <div class="settings-item" data-setting="nome">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon"><i class="fas fa-user"></i></div>
-                            <div>
-                                <div class="settings-item-label">Nome</div>
-                                <div class="settings-item-desc" id="config-nome">Não definido</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                    <div class="settings-item" data-setting="meta">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon"><i class="fas fa-bullseye"></i></div>
-                            <div>
-                                <div class="settings-item-label">Meta de Peso</div>
-                                <div class="settings-item-desc" id="config-meta">65 kg</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                    <div class="settings-item" data-setting="inicial">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon"><i class="fas fa-weight"></i></div>
-                            <div>
-                                <div class="settings-item-label">Peso Inicial</div>
-                                <div class="settings-item-desc" id="config-inicial">88 kg</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                    <div class="settings-item" data-setting="prazo">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon"><i class="fas fa-calendar-alt"></i></div>
-                            <div>
-                                <div class="settings-item-label">Prazo da Meta</div>
-                                <div class="settings-item-desc" id="config-prazo">Não definido</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <div class="settings-title">Notificações</div>
-                <div class="settings-card">
-                    <div class="settings-item">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon"><i class="fas fa-bell"></i></div>
-                            <div>
-                                <div class="settings-item-label">Lembrete Diário</div>
-                                <div class="settings-item-desc">Receber lembrete para registrar</div>
-                            </div>
-                        </div>
-                        <div class="toggle" id="toggle-reminder"></div>
-                    </div>
-                    <div class="settings-item" id="notification-time-setting" style="display: none;">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon"><i class="fas fa-clock"></i></div>
-                            <div>
-                                <div class="settings-item-label">Horário do Lembrete</div>
-                                <div class="settings-item-desc" id="config-notification-time">20:00</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <div class="settings-title">Dados</div>
-                <div class="settings-card">
-                    <div class="settings-item" data-action="export-data">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon"><i class="fas fa-download"></i></div>
-                            <div>
-                                <div class="settings-item-label">Exportar Dados</div>
-                                <div class="settings-item-desc">Baixar todos os registros</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                    <div class="settings-item" data-action="clear-data">
-                        <div class="settings-item-left">
-                            <div class="settings-item-icon" style="color: var(--accent-primary);"><i class="fas fa-trash"></i></div>
-                            <div>
-                                <div class="settings-item-label" style="color: var(--accent-primary);">Limpar Dados</div>
-                                <div class="settings-item-desc">Apagar todos os registros</div>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color: var(--text-muted);"></i>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- SUCCESS MODAL -->
-    <div class="modal-overlay" id="success-modal">
-        <div class="modal">
-            <div class="modal-icon">
-                <i class="fas fa-check"></i>
-            </div>
-            <h2>Registro Salvo!</h2>
-            <p>Seus dados foram salvos com sucesso. Continue assim!</p>
-            <button class="btn btn-primary" data-action="close-modal">
-                Continuar
-            </button>
-        </div>
-    </div>
-
-    <!-- PHOTO MODAL -->
-    <div class="modal-overlay" id="photo-modal">
-        <div class="modal" style="max-width: 90%; padding: 20px;">
-            <img id="modal-photo-img" style="width: 100%; border-radius: 16px; margin-bottom: 15px;">
-            <button class="btn btn-secondary" data-action="close-photo-modal">Fechar</button>
-        </div>
-    </div>
-
-    <!-- WORKOUT EDITOR MODAL -->
-    <div class="modal-overlay" id="workout-editor-modal">
-        <div class="modal workout-editor-modal">
-            <div class="card-header">
-                <div class="card-title">
-                    <i class="fas fa-dumbbell"></i>
-                    <span id="workout-editor-title">Novo Treino</span>
-                </div>
-                <button class="btn btn-secondary" data-action="close-workout-editor">
-                    <i class="fas fa-times"></i>
+            <div class="card">
+                <h2 style="margin-bottom: 20px;">Dados</h2>
+                <button class="btn btn-secondary btn-full mb-20" data-action="export-data">
+                    📥 Exportar Dados
+                </button>
+                <button class="btn btn-danger btn-full" data-action="clear-data">
+                    🗑️ Limpar Todos os Dados
                 </button>
             </div>
-            <form class="workout-editor-form" id="workout-editor-form">
+        </section>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-success" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✅ Sucesso!</h2>
+                <button class="modal-close" data-action="close-modal">&times;</button>
+            </div>
+            <p id="modal-success-message"></p>
+            <button class="btn btn-primary btn-full mt-20" data-action="close-modal">OK</button>
+        </div>
+    </div>
+
+    <div id="modal-workout-editor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-workout-title">Novo Treino</h2>
+                <button class="modal-close" data-action="close-modal">&times;</button>
+            </div>
+            <form id="workout-editor-form">
+                <input type="hidden" id="workout-editor-id">
                 <div class="form-group">
-                    <label class="form-label">Nome do Treino *</label>
-                    <input type="text" class="form-input" id="workout-editor-nome" placeholder="Ex: Treino A - Peito e Tríceps" required>
+                    <label for="workout-editor-nome">Nome do Treino *</label>
+                    <input type="text" id="workout-editor-nome" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Descrição</label>
-                    <textarea class="notes-textarea" id="workout-editor-descricao" placeholder="Descreva o objetivo do treino..." rows="3"></textarea>
+                    <label for="workout-editor-descricao">Descrição</label>
+                    <textarea id="workout-editor-descricao" rows="2"></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Dias da Semana *</label>
-                    <div class="workout-editor-days">
-                        <input type="checkbox" class="workout-day-checkbox" id="day-dom" value="Dom">
-                        <label for="day-dom" class="workout-day-label">Dom</label>
-                        <input type="checkbox" class="workout-day-checkbox" id="day-seg" value="Seg">
-                        <label for="day-seg" class="workout-day-label">Seg</label>
-                        <input type="checkbox" class="workout-day-checkbox" id="day-ter" value="Ter">
-                        <label for="day-ter" class="workout-day-label">Ter</label>
-                        <input type="checkbox" class="workout-day-checkbox" id="day-qua" value="Qua">
-                        <label for="day-qua" class="workout-day-label">Qua</label>
-                        <input type="checkbox" class="workout-day-checkbox" id="day-qui" value="Qui">
-                        <label for="day-qui" class="workout-day-label">Qui</label>
-                        <input type="checkbox" class="workout-day-checkbox" id="day-sex" value="Sex">
-                        <label for="day-sex" class="workout-day-label">Sex</label>
-                        <input type="checkbox" class="workout-day-checkbox" id="day-sab" value="Sáb">
-                        <label for="day-sab" class="workout-day-label">Sáb</label>
+                    <label>Dias da Semana</label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <label><input type="checkbox" value="Dom" class="workout-day"> Dom</label>
+                        <label><input type="checkbox" value="Seg" class="workout-day"> Seg</label>
+                        <label><input type="checkbox" value="Ter" class="workout-day"> Ter</label>
+                        <label><input type="checkbox" value="Qua" class="workout-day"> Qua</label>
+                        <label><input type="checkbox" value="Qui" class="workout-day"> Qui</label>
+                        <label><input type="checkbox" value="Sex" class="workout-day"> Sex</label>
+                        <label><input type="checkbox" value="Sáb" class="workout-day"> Sáb</label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Exercícios *</label>
-                    <div class="workout-exercises-editor" id="workout-exercises-editor"></div>
-                    <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 15px;" data-action="add-exercise">
-                        <i class="fas fa-plus"></i>
-                        Adicionar Exercício
-                    </button>
+                <div id="workout-exercises-container">
+                    <!-- Exercises will be added here -->
                 </div>
-                <div class="btn-group" style="margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary" data-action="close-workout-editor">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar Treino</button>
+                <button type="button" class="btn btn-secondary btn-full mb-20" data-action="add-exercise">
+                    ➕ Adicionar Exercício
+                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-action="close-modal" style="flex: 1;">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="modal-workout-execution" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="workout-execution-title">Executando Treino</h2>
+                <button class="modal-close" data-action="close-modal">&times;</button>
+            </div>
+            <div id="workout-execution-content">
+                <!-- Workout execution will be rendered here -->
+            </div>
+            <button class="btn btn-primary btn-full mt-20" data-action="finish-workout">
+                ✅ Finalizar Treino
+            </button>
         </div>
     </div>
 
