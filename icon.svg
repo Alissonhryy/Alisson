@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007AFF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#5856D6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="100" fill="url(#grad)"/>
+  <g transform="translate(256, 256)">
+    <!-- Ícone de peso/balança -->
+    <circle cx="0" cy="-40" r="60" fill="white" opacity="0.9"/>
+    <rect x="-80" y="20" width="160" height="8" rx="4" fill="white" opacity="0.9"/>
+    <rect x="-100" y="0" width="20" height="100" rx="10" fill="white" opacity="0.9"/>
+    <rect x="80" y="0" width="20" height="100" rx="10" fill="white" opacity="0.9"/>
+    <!-- Símbolo de check -->
+    <path d="M -30 10 L -10 30 L 30 -10" stroke="url(#grad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none" transform="scale(1.5)"/>
+  </g>
+</svg>
+
