@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fittrack-v1';
+const CACHE_NAME = 'fittrack-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,13 +7,23 @@ const urlsToCache = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'
 ];
 
-// Install
+// Instalar - não falhar se algum arquivo não existir
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then((cache) => {
+        return Promise.allSettled(
+          urlsToCache.map(url => {
+            return cache.add(url).catch(err => {
+              console.log('Falha ao cachear:', url, err);
+            });
+          })
+        );
+      })
   );
+  self.skipWaiting();
 });
+
 
 // Fetch
 self.addEventListener('fetch', (event) => {
@@ -42,5 +52,6 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  return self.clients.claim();
 });
 

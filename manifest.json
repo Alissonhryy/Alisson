@@ -2,7 +2,8 @@
   "name": "FitTrack Pro",
   "short_name": "FitTrack",
   "description": "Acompanhamento de Peso e Progresso",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f0f23",
   "theme_color": "#0f0f23",
@@ -15,7 +16,7 @@
       "name": "Novo Registro",
       "short_name": "Registrar",
       "description": "Adicionar novo registro de peso",
-      "url": "/?section=registro",
+      "url": "./?section=registro",
       "icons": []
     }
   ]
