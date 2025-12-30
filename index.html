@@ -1240,76 +1240,6 @@
         }
 
         /* Photo Options Modal */
-        .photo-options-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            border-radius: 20px 20px 0 0;
-            padding: 20px;
-            z-index: 3000;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.36, 0.66, 0.04, 1);
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-            max-height: 50vh;
-        }
-
-        .photo-options-modal.active {
-            transform: translateY(0);
-        }
-
-        .photo-options-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(5px);
-            z-index: 2999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-
-        .photo-options-backdrop.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .photo-option-btn {
-            width: 100%;
-            padding: 16px;
-            background: var(--bg-secondary);
-            border: none;
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 17px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .photo-option-btn:active {
-            transform: scale(0.98);
-            background: var(--bg-card-light);
-        }
-
-        .photo-option-btn svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .photo-option-cancel {
-            background: transparent;
-            color: var(--error);
-            margin-top: 8px;
-        }
 
         /* Insights */
         .insight-card {
@@ -1981,7 +1911,7 @@
                     <div class="photo-upload">
                         <div class="photo-upload-item">
                             <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Frente</label>
-                            <div class="photo-upload-box" data-photo-type="frente" onclick="openPhotoOptions('frente')">
+                            <div class="photo-upload-box" data-photo-type="frente" onclick="document.getElementById('foto-frente').click()">
                                 <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                                     <circle cx="12" cy="13" r="4"></circle>
@@ -1996,11 +1926,11 @@
                                     </svg>
                                 </button>
                             </div>
-                            <input type="file" id="foto-frente" accept="image/*" capture="environment" style="display: none;">
+                            <input type="file" id="foto-frente" accept="image/*" style="display: none;">
                         </div>
                         <div class="photo-upload-item">
                             <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Lado</label>
-                            <div class="photo-upload-box" data-photo-type="lado" onclick="openPhotoOptions('lado')">
+                            <div class="photo-upload-box" data-photo-type="lado" onclick="document.getElementById('foto-lado').click()">
                                 <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                                     <circle cx="12" cy="13" r="4"></circle>
@@ -2015,30 +1945,10 @@
                                     </svg>
                                 </button>
                             </div>
-                            <input type="file" id="foto-lado" accept="image/*" capture="environment" style="display: none;">
+                            <input type="file" id="foto-lado" accept="image/*" style="display: none;">
                         </div>
                     </div>
 
-                    <!-- Photo Options Modal -->
-                    <div class="photo-options-backdrop" id="photo-options-backdrop" onclick="closePhotoOptions()"></div>
-                    <div class="photo-options-modal" id="photo-options-modal">
-                        <button class="photo-option-btn" onclick="selectPhotoFromGallery()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                            Escolher da Galeria
-                        </button>
-                        <button class="photo-option-btn" onclick="takePhoto()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                <circle cx="12" cy="13" r="4"></circle>
-                            </svg>
-                            Tirar Foto
-                        </button>
-                        <button class="photo-option-btn photo-option-cancel" onclick="closePhotoOptions()">Cancelar</button>
-                    </div>
 
                     <button type="submit" class="btn btn-primary btn-full" aria-label="Salvar registro de peso">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -2287,7 +2197,7 @@
                 <div class="photo-upload">
                     <div class="photo-upload-item">
                         <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Frente</label>
-                        <div class="photo-upload-box" data-photo-type="frente-modal" onclick="openPhotoOptionsModal('frente-modal')">
+                        <div class="photo-upload-box" data-photo-type="frente-modal" onclick="document.getElementById('foto-frente-modal').click()">
                             <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                                 <circle cx="12" cy="13" r="4"></circle>
@@ -2306,7 +2216,7 @@
                     </div>
                     <div class="photo-upload-item">
                         <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary);">Foto Lado</label>
-                        <div class="photo-upload-box" data-photo-type="lado-modal" onclick="openPhotoOptionsModal('lado-modal')">
+                        <div class="photo-upload-box" data-photo-type="lado-modal" onclick="document.getElementById('foto-lado-modal').click()">
                             <svg class="photo-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                                 <circle cx="12" cy="13" r="4"></circle>
