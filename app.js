@@ -1070,12 +1070,20 @@ window.selectCalendarDate = async function(dataStr) {
     }
 };
 
+// Função para formatar data corretamente (evita problema de timezone)
+function formatDateCorrectly(dateStr) {
+    // Parse a data como local, não UTC
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString('pt-BR');
+}
+
 function openAddRegistroModal(dataStr) {
     const modal = document.getElementById('modal-add-registro');
     const dateTitle = document.getElementById('modal-add-registro-date');
     const form = document.getElementById('modal-add-registro-form');
     
-    dateTitle.textContent = `Adicionar Registro - ${new Date(dataStr).toLocaleDateString('pt-BR')}`;
+    dateTitle.textContent = `Adicionar Registro - ${formatDateCorrectly(dataStr)}`;
     document.getElementById('modal-add-registro-data').value = dataStr;
     
     // Limpar formulário
@@ -1109,7 +1117,11 @@ async function showRegistroModal(dataStr, registro) {
     const content = document.getElementById('modal-registro-content');
     const dateTitle = document.getElementById('modal-registro-date');
     
-    dateTitle.textContent = new Date(dataStr).toLocaleDateString('pt-BR', { 
+    // Parse a data corretamente para evitar problema de timezone
+    const [year, month, day] = dataStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    
+    dateTitle.textContent = date.toLocaleDateString('pt-BR', { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
@@ -1231,7 +1243,7 @@ function loadHistorico() {
     container.innerHTML = comparisonButton + registros
         .sort((a, b) => new Date(b.data) - new Date(a.data))
         .map((registro, index) => {
-            const dataFormatada = new Date(registro.data).toLocaleDateString('pt-BR');
+            const dataFormatada = formatDateCorrectly(registro.data);
             const registroAnterior = index < registros.length - 1 ? registros[registros.length - 2 - index] : null;
             const mudanca = registroAnterior ? (registro.peso - registroAnterior.peso).toFixed(1) : null;
             const isSelected = selectedDatesForComparison.includes(registro.data);
@@ -1305,11 +1317,11 @@ async function showPhotoComparison() {
         <div class="photo-comparison-grid">
             <div class="photo-comparison-item">
                 <img src="${foto1}" alt="Foto 1">
-                <div class="date-label">${new Date(selectedDatesForComparison[0]).toLocaleDateString('pt-BR')}</div>
+                <div class="date-label">${formatDateCorrectly(selectedDatesForComparison[0])}</div>
             </div>
             <div class="photo-comparison-item">
                 <img src="${foto2}" alt="Foto 2">
-                <div class="date-label">${new Date(selectedDatesForComparison[1]).toLocaleDateString('pt-BR')}</div>
+                <div class="date-label">${formatDateCorrectly(selectedDatesForComparison[1])}</div>
             </div>
         </div>
     `;
@@ -1964,8 +1976,14 @@ window.selectPhotoFromGallery = function() {
     }
     const input = document.getElementById(inputId);
     if (input) {
+        // Remover capture para permitir escolher da galeria
         input.removeAttribute('capture');
-        input.click();
+        // Limpar valor anterior para permitir selecionar o mesmo arquivo novamente
+        input.value = '';
+        // Pequeno delay para garantir que o navegador processe a mudança
+        setTimeout(() => {
+            input.click();
+        }, 100);
     }
     closePhotoOptions();
 };
@@ -1979,8 +1997,15 @@ window.takePhoto = function() {
     }
     const input = document.getElementById(inputId);
     if (input) {
+        // Configurar para usar câmera traseira (environment) ou frontal (user)
+        // environment = câmera traseira (melhor para fotos de corpo)
         input.setAttribute('capture', 'environment');
-        input.click();
+        // Limpar valor anterior
+        input.value = '';
+        // Pequeno delay para garantir que o navegador processe a mudança
+        setTimeout(() => {
+            input.click();
+        }, 100);
     }
     closePhotoOptions();
 };
@@ -2517,7 +2542,7 @@ function renderCalendarMonth(container, mes, ano) {
         
         html += `
             <div class="${classes}" data-date="${dataStr}" onclick="selectCalendarDate('${dataStr}')" 
-                 role="gridcell" aria-label="${new Date(dataStr).toLocaleDateString('pt-BR')}${temRegistro ? ' - Com registro' : ''}">
+                 role="gridcell" aria-label="${formatDateCorrectly(dataStr)}${temRegistro ? ' - Com registro' : ''}">
                 ${dia}
             </div>
         `;
@@ -2713,11 +2738,11 @@ function renderBeforeAfter() {
             <div class="before-after-grid">
                 <div class="before-after-item">
                     <img src="${f1}" alt="Antes">
-                    <div class="before-after-label">${new Date(primeiraFoto.data).toLocaleDateString('pt-BR')}</div>
+                    <div class="before-after-label">${formatDateCorrectly(primeiraFoto.data)}</div>
                 </div>
                 <div class="before-after-item">
                     <img src="${f2}" alt="Depois">
-                    <div class="before-after-label">${new Date(ultimaFoto.data).toLocaleDateString('pt-BR')}</div>
+                    <div class="before-after-label">${formatDateCorrectly(ultimaFoto.data)}</div>
                 </div>
             </div>
         `;
