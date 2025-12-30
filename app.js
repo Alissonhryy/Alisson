@@ -878,100 +878,116 @@ function loadRegistro() {
 async function handleRegistroSubmit(e) {
     e.preventDefault();
     
-    // Verificar se está editando registro antigo
-    const editDate = document.getElementById('registro-form').getAttribute('data-edit-date');
-    const data = editDate || new Date().toISOString().split('T')[0];
-    
-    const peso = parseFloat(document.getElementById('registro-peso').value);
-    const cintura = document.getElementById('registro-cintura').value ? 
-        parseFloat(document.getElementById('registro-cintura').value) : null;
-    const agua = document.getElementById('registro-agua').value ? 
-        parseFloat(document.getElementById('registro-agua').value) : null;
-    const sono = document.getElementById('registro-sono').value ? 
-        parseFloat(document.getElementById('registro-sono').value) : null;
-    
-    // Validações
-    const validacaoPeso = validatePeso();
-    if (!validacaoPeso.valid) {
-        return;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        setButtonLoading(submitBtn, true);
     }
     
-    const validacaoSono = validateSono();
-    if (!validacaoSono.valid) {
-        return;
-    }
-    
-    // Buscar registros
-    const registros = getRegistros();
-    
-    // Verificar se já existe registro para esta data
-    const indexExistente = registros.findIndex(r => r.data === data);
-    
-    const novoRegistro = {
-        data: data,
-        peso: peso,
-        cintura: cintura,
-        agua: agua,
-        sono: sono
-    };
-    
-    // Salvar fotos
-    const fotoFrenteInput = document.getElementById('foto-frente');
-    const fotoLadoInput = document.getElementById('foto-lado');
-    
-    if (fotoFrenteInput.files.length > 0) {
-        const fotoFrenteBase64 = await compressImage(fotoFrenteInput.files[0]);
-        novoRegistro.fotoFrente = fotoFrenteBase64;
-        await savePhotoToDB('frente', data, fotoFrenteBase64);
-    } else {
-        // Tentar buscar foto existente
-        const fotoExistente = await getPhotoFromDB('frente', data);
-        if (fotoExistente) {
-            novoRegistro.fotoFrente = fotoExistente;
+    try {
+        // Verificar se está editando registro antigo
+        const editDate = document.getElementById('registro-form').getAttribute('data-edit-date');
+        const data = editDate || new Date().toISOString().split('T')[0];
+        
+        const peso = parseFloat(document.getElementById('registro-peso').value);
+        const cintura = document.getElementById('registro-cintura').value ? 
+            parseFloat(document.getElementById('registro-cintura').value) : null;
+        const agua = document.getElementById('registro-agua').value ? 
+            parseFloat(document.getElementById('registro-agua').value) : null;
+        const sono = document.getElementById('registro-sono').value ? 
+            parseFloat(document.getElementById('registro-sono').value) : null;
+        
+        // Validações
+        const validacaoPeso = validatePeso();
+        if (!validacaoPeso.valid) {
+            if (submitBtn) setButtonLoading(submitBtn, false);
+            return;
         }
-    }
-    
-    if (fotoLadoInput.files.length > 0) {
-        const fotoLadoBase64 = await compressImage(fotoLadoInput.files[0]);
-        novoRegistro.fotoLado = fotoLadoBase64;
-        await savePhotoToDB('lado', data, fotoLadoBase64);
-    } else {
-        const fotoExistente = await getPhotoFromDB('lado', data);
-        if (fotoExistente) {
-            novoRegistro.fotoLado = fotoExistente;
+        
+        const validacaoSono = validateSono();
+        if (!validacaoSono.valid) {
+            if (submitBtn) setButtonLoading(submitBtn, false);
+            return;
         }
-    }
-    
-    if (indexExistente >= 0) {
-        registros[indexExistente] = novoRegistro;
-    } else {
-        registros.push(novoRegistro);
-    }
-    
-    // Ordenar por data
-    registros.sort((a, b) => new Date(a.data) - new Date(b.data));
-    
-    saveRegistros(registros);
-    
-    // Limpar formulário
-    clearRegistroForm();
-    document.getElementById('registro-form').removeAttribute('data-edit-date');
-    
-    // Verificar achievements
-    checkAchievements();
-    
-    // Feedback
-    showModal('modal-success', 'Registro salvo com sucesso!');
-    
-    // Atualizar calendário
-    renderCalendar();
-    
-    // Atualizar dashboard
-    loadDashboard();
-    
-    // Vibração (se suportado)
-    if (navigator.vibrate) {
-        navigator.vibrate(100);
+        
+        // Buscar registros
+        const registros = getRegistros();
+        
+        // Verificar se já existe registro para esta data
+        const indexExistente = registros.findIndex(r => r.data === data);
+        
+        const novoRegistro = {
+            data: data,
+            peso: peso,
+            cintura: cintura,
+            agua: agua,
+            sono: sono
+        };
+        
+        // Salvar fotos
+        const fotoFrenteInput = document.getElementById('foto-frente');
+        const fotoLadoInput = document.getElementById('foto-lado');
+        
+        if (fotoFrenteInput.files.length > 0) {
+            const fotoFrenteBase64 = await compressImage(fotoFrenteInput.files[0]);
+            novoRegistro.fotoFrente = fotoFrenteBase64;
+            await savePhotoToDB('frente', data, fotoFrenteBase64);
+        } else {
+            // Tentar buscar foto existente
+            const fotoExistente = await getPhotoFromDB('frente', data);
+            if (fotoExistente) {
+                novoRegistro.fotoFrente = fotoExistente;
+            }
+        }
+        
+        if (fotoLadoInput.files.length > 0) {
+            const fotoLadoBase64 = await compressImage(fotoLadoInput.files[0]);
+            novoRegistro.fotoLado = fotoLadoBase64;
+            await savePhotoToDB('lado', data, fotoLadoBase64);
+        } else {
+            const fotoExistente = await getPhotoFromDB('lado', data);
+            if (fotoExistente) {
+                novoRegistro.fotoLado = fotoExistente;
+            }
+        }
+        
+        if (indexExistente >= 0) {
+            registros[indexExistente] = novoRegistro;
+        } else {
+            registros.push(novoRegistro);
+        }
+        
+        // Ordenar por data
+        registros.sort((a, b) => new Date(a.data) - new Date(b.data));
+        
+        saveRegistros(registros);
+        
+        // Limpar formulário
+        clearRegistroForm();
+        document.getElementById('registro-form').removeAttribute('data-edit-date');
+        
+        // Verificar achievements
+        checkAchievements();
+        
+        // Feedback
+        showSuccessToast('Registro salvo com sucesso! ✨');
+        
+        // Atualizar calendário
+        renderCalendar();
+        
+        // Atualizar dashboard
+        loadDashboard();
+        
+        // Vibração (se suportado)
+        if (navigator.vibrate) {
+            navigator.vibrate(100);
+        }
+    } catch (error) {
+        console.error('Erro ao salvar registro:', error);
+        showErrorToast('Erro ao salvar registro. Tente novamente.');
+    } finally {
+        if (submitBtn) {
+            setButtonLoading(submitBtn, false);
+        }
     }
     
     // Atualizar dashboard
@@ -1750,7 +1766,7 @@ function handleWorkoutEditorSubmit(e) {
     saveTreinos(treinos);
     closeModal();
     loadTreinos();
-    showModal('modal-success', 'Treino salvo com sucesso! 💪');
+    showSuccessToast('Treino salvo com sucesso! 💪');
 }
 
 function deleteWorkout(workoutId) {
@@ -1845,7 +1861,7 @@ function finishWorkout() {
     saveTreinoCheckins(checkinsFiltrados);
     
     closeModal();
-    showModal('modal-success', 'Treino concluído! 💪 Continue assim!');
+    showSuccessToast('Treino concluído! 💪 Continue assim!');
     
     // Vibração
     if (navigator.vibrate) {
@@ -1880,7 +1896,7 @@ function handleConfigSubmit(e) {
     // Aplicar tema
     document.documentElement.setAttribute('data-theme', config.temaEscuro ? 'dark' : 'light');
     
-    showModal('modal-success', 'Configurações salvas!');
+    showSuccessToast('Configurações salvas! ✨');
     loadDashboard();
 }
 
@@ -1945,6 +1961,168 @@ function closeModal() {
         modal.classList.remove('active');
     });
 }
+
+// ==================== TOAST NOTIFICATIONS ====================
+
+/**
+ * Mostra uma notificação toast
+ * @param {string} message - Mensagem a ser exibida
+ * @param {string} type - Tipo: 'success', 'error', 'warning', 'info'
+ * @param {number} duration - Duração em milissegundos (padrão: 3000)
+ */
+function showToast(message, type = 'info', duration = 3000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    
+    // Ícones SVG para cada tipo
+    const icons = {
+        success: `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 6L9 17l-5-5" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--success') || '#34C759'}" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`,
+        error: `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>`,
+        warning: `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>`,
+        info: `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>`
+    };
+    
+    toast.innerHTML = `
+        ${icons[type] || icons.info}
+        <div class="toast-content">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Fechar notificação">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+    
+    // Auto remove
+    const autoRemove = setTimeout(() => {
+        removeToast(toast);
+    }, duration);
+    
+    // Remove on click
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        clearTimeout(autoRemove);
+        removeToast(toast);
+    });
+    
+    return toast;
+}
+
+function removeToast(toast) {
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.parentElement.removeChild(toast);
+        }
+    }, 200);
+}
+
+// Funções auxiliares para tipos específicos
+function showSuccessToast(message, duration) {
+    return showToast(message, 'success', duration);
+}
+
+function showErrorToast(message, duration) {
+    return showToast(message, 'error', duration || 4000);
+}
+
+function showWarningToast(message, duration) {
+    return showToast(message, 'warning', duration);
+}
+
+function showInfoToast(message, duration) {
+    return showToast(message, 'info', duration);
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+/**
+ * Define estado de loading em um botão
+ * @param {HTMLElement} button - Elemento do botão
+ * @param {boolean} loading - Se está carregando
+ */
+function setButtonLoading(button, loading) {
+    if (!button) return;
+    
+    if (loading) {
+        button.classList.add('btn-loading');
+        button.disabled = true;
+        const text = button.textContent || button.innerText;
+        button.setAttribute('data-original-text', text);
+        button.innerHTML = '<span class="spinner"></span><span class="btn-text" style="opacity: 0;">' + text + '</span>';
+    } else {
+        button.classList.remove('btn-loading');
+        button.disabled = false;
+        const originalText = button.getAttribute('data-original-text');
+        if (originalText) {
+            button.textContent = originalText;
+            button.removeAttribute('data-original-text');
+        }
+    }
+}
+
+/**
+ * Adiciona efeito ripple a um elemento
+ * @param {HTMLElement} element - Elemento para adicionar ripple
+ */
+function addRippleEffect(element) {
+    if (!element) return;
+    
+    element.classList.add('ripple');
+    element.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.classList.add('ripple-effect');
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    });
+}
+
+// Adicionar ripple effect a todos os botões principais
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+            addRippleEffect(btn);
+        });
+    }, 100);
+});
 
 // Fechar modal ao clicar fora
 document.querySelectorAll('.modal').forEach(modal => {
@@ -2249,7 +2427,7 @@ async function handleModalAddRegistroSubmit(e) {
     checkAchievements();
     
     // Feedback
-    showModal('modal-success', 'Registro salvo com sucesso!');
+    showSuccessToast('Registro salvo com sucesso! ✨');
     
     // Atualizar calendário e dashboard
     renderCalendar();
