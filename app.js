@@ -732,20 +732,30 @@ function renderChart(periodDays = 30) {
     ctx.fillText(maxPeso.toFixed(1) + ' kg', padding - 10, padding + 5);
 }
 
-function renderProgressComparison(registros) {
+// Variável global para tipo de foto selecionado
+let currentProgressPhotoType = 'lado';
+let currentBeforeAfterPhotoType = 'lado';
+
+function renderProgressComparison(registros, photoType = null) {
     const container = document.getElementById('progress-comparison');
     if (!container) return;
+    
+    // Usar o tipo passado ou o tipo atual salvo
+    const type = photoType !== null ? photoType : currentProgressPhotoType;
+    currentProgressPhotoType = type;
     
     const fotosFrente = registros.filter(r => r.fotoFrente).map(r => ({ data: r.data, foto: r.fotoFrente }));
     const fotosLado = registros.filter(r => r.fotoLado).map(r => ({ data: r.data, foto: r.fotoLado }));
     
-    if (fotosFrente.length === 0 && fotosLado.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Adicione fotos de progresso para ver a comparação</p>';
+    // Selecionar fotos baseado no tipo
+    const fotos = type === 'frente' ? fotosFrente : fotosLado;
+    
+    if (fotos.length === 0) {
+        const tipoTexto = type === 'frente' ? 'frente' : 'lado';
+        container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">Adicione fotos de ${tipoTexto} para ver a comparação</p>`;
         return;
     }
     
-    // Usar fotos de frente se disponível, senão lado
-    const fotos = fotosFrente.length > 0 ? fotosFrente : fotosLado;
     const primeiraFoto = fotos[0].foto;
     const ultimaFoto = fotos[fotos.length - 1].foto;
     
@@ -762,6 +772,27 @@ function renderProgressComparison(registros) {
     // Setup slider
     setupProgressSlider();
 }
+
+window.switchProgressComparisonType = function(type) {
+    currentProgressPhotoType = type;
+    
+    // Atualizar botões ativos
+    const selector = document.getElementById('progress-comparison-selector');
+    if (selector) {
+        const buttons = selector.querySelectorAll('.photo-type-btn');
+        buttons.forEach(btn => {
+            if (btn.dataset.type === type) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+    
+    // Re-renderizar com o novo tipo
+    const registros = getRegistros();
+    renderProgressComparison(registros, type);
+};
 
 function setupProgressSlider() {
     const slider = document.getElementById('progress-slider');
@@ -2706,28 +2737,38 @@ function renderMotivationalText(registros, periodDays) {
 
 // ==================== ANTES X DEPOIS ====================
 
-function renderBeforeAfter() {
+function renderBeforeAfter(photoType = null) {
     const container = document.getElementById('before-after-content');
     if (!container) return;
     
+    // Usar o tipo passado ou o tipo atual salvo
+    const type = photoType !== null ? photoType : currentBeforeAfterPhotoType;
+    currentBeforeAfterPhotoType = type;
+    
     const registros = getRegistros();
-    const registrosComFoto = registros.filter(r => r.fotoFrente || r.fotoLado);
+    
+    // Filtrar registros que tenham o tipo de foto selecionado
+    const registrosComFoto = type === 'frente' 
+        ? registros.filter(r => r.fotoFrente)
+        : registros.filter(r => r.fotoLado);
     
     if (registrosComFoto.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Adicione fotos para ver sua evolução visual</p>';
+        const tipoTexto = type === 'frente' ? 'frente' : 'lado';
+        container.innerHTML = `<p style="color: var(--text-secondary); text-align: center;">Adicione fotos de ${tipoTexto} para ver sua evolução visual</p>`;
         return;
     }
     
     const primeiraFoto = registrosComFoto[0];
     const ultimaFoto = registrosComFoto[registrosComFoto.length - 1];
     
-    let foto1 = primeiraFoto.fotoFrente || primeiraFoto.fotoLado;
-    let foto2 = ultimaFoto.fotoFrente || ultimaFoto.fotoLado;
+    let foto1 = type === 'frente' ? primeiraFoto.fotoFrente : primeiraFoto.fotoLado;
+    let foto2 = type === 'frente' ? ultimaFoto.fotoFrente : ultimaFoto.fotoLado;
     
     // Buscar do IndexedDB se necessário
+    const photoKey = type === 'frente' ? 'frente' : 'lado';
     Promise.all([
-        foto1 ? Promise.resolve(foto1) : getPhotoFromDB('frente', primeiraFoto.data),
-        foto2 ? Promise.resolve(foto2) : getPhotoFromDB('frente', ultimaFoto.data)
+        foto1 ? Promise.resolve(foto1) : getPhotoFromDB(photoKey, primeiraFoto.data),
+        foto2 ? Promise.resolve(foto2) : getPhotoFromDB(photoKey, ultimaFoto.data)
     ]).then(([f1, f2]) => {
         if (!f1 || !f2) {
             container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Adicione mais fotos para comparação</p>';
@@ -2748,6 +2789,26 @@ function renderBeforeAfter() {
         `;
     });
 }
+
+window.switchBeforeAfterType = function(type) {
+    currentBeforeAfterPhotoType = type;
+    
+    // Atualizar botões ativos
+    const selector = document.getElementById('before-after-selector');
+    if (selector) {
+        const buttons = selector.querySelectorAll('.photo-type-btn');
+        buttons.forEach(btn => {
+            if (btn.dataset.type === type) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+    
+    // Re-renderizar com o novo tipo
+    renderBeforeAfter(type);
+};
 
 // ==================== NOTIFICAÇÕES ====================
 

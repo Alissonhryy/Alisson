@@ -1634,6 +1634,38 @@
             font-weight: 500;
         }
 
+        .photo-type-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .photo-type-btn {
+            flex: 1;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .photo-type-btn.active {
+            background: var(--bg-card);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-type-btn:active {
+            transform: scale(0.98);
+        }
+
         .timeline-photos {
             display: flex;
             gap: 12px;
@@ -1867,6 +1899,10 @@
 
             <div class="card before-after-section" id="before-after-container">
                 <h2 style="margin-bottom: 15px;">Evolução Visual</h2>
+                <div class="photo-type-selector" id="before-after-selector">
+                    <button type="button" class="photo-type-btn active" data-type="lado" onclick="switchBeforeAfterType('lado')">Lado</button>
+                    <button type="button" class="photo-type-btn" data-type="frente" onclick="switchBeforeAfterType('frente')">Frente</button>
+                </div>
                 <div id="before-after-content">
                     <!-- Conteúdo será renderizado aqui -->
                 </div>
@@ -1874,6 +1910,10 @@
 
             <div class="card" id="progress-comparison-container">
                 <h2 style="margin-bottom: 15px;">Comparação de Progresso</h2>
+                <div class="photo-type-selector" id="progress-comparison-selector">
+                    <button type="button" class="photo-type-btn active" data-type="lado" onclick="switchProgressComparisonType('lado')">Lado</button>
+                    <button type="button" class="photo-type-btn" data-type="frente" onclick="switchProgressComparisonType('frente')">Frente</button>
+                </div>
                 <div id="progress-comparison"></div>
             </div>
         </section>
