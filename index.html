@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="FitTrack Pro - Acompanhamento de peso, medidas e treinos personalizados">
     <meta name="theme-color" content="#000000">
     <title>FitTrack Pro</title>
@@ -50,6 +50,14 @@
             box-sizing: border-box;
         }
 
+        html {
+            height: 100%;
+            overflow: hidden;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
             background: var(--bg-primary);
@@ -58,23 +66,80 @@
             font-weight: 400;
             letter-spacing: -0.022em;
             overflow-x: hidden;
+            overflow-y: auto;
             min-height: 100vh;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             transition: var(--transition);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+        }
+
+        /* Permitir seleção de texto em inputs e textareas */
+        input, textarea, select {
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 100%;
+            width: 100%;
             margin: 0 auto;
             padding: 16px;
             padding-bottom: 90px;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Conteúdo centralizado com largura fixa no mobile */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+                width: 100%;
+                margin: 0 auto;
+                padding: 16px;
+                padding-bottom: 90px;
+            }
+
+            /* Prevenir zoom em double tap */
+            * {
+                touch-action: manipulation;
+            }
+
+            /* Prevenir zoom em inputs no iOS - tamanho mínimo 16px previne zoom automático */
+            input[type="text"],
+            input[type="number"],
+            input[type="date"],
+            input[type="time"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="password"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
         }
 
         @media (min-width: 769px) {
             .container {
+                max-width: 600px;
+                width: 600px;
+                margin: 0 auto;
                 padding: 24px;
-                padding-left: 100px;
+                padding-left: 24px;
+                padding-right: 24px;
             }
         }
 
@@ -212,6 +277,9 @@
         .section {
             display: none;
             animation: fadeInUp 0.4s cubic-bezier(0.36, 0.66, 0.04, 1);
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
         }
 
         .section.active {

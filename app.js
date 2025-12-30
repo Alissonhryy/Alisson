@@ -32,7 +32,58 @@ let currentCalendarYear = new Date().getFullYear();
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
+    preventZoom();
 });
+
+// ==================== PREVENIR ZOOM ====================
+
+function preventZoom() {
+    // Prevenir zoom via gestos (pinch zoom)
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // Prevenir zoom via double tap
+    let lastTap = 0;
+    document.addEventListener('touchend', function (event) {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 500 && tapLength > 0) {
+            event.preventDefault();
+        }
+        lastTap = currentTime;
+    }, false);
+
+    // Prevenir zoom via wheel (Ctrl + Scroll)
+    document.addEventListener('wheel', function (event) {
+        if (event.ctrlKey) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    // Prevenir zoom via keyboard (Ctrl + Plus/Minus)
+    document.addEventListener('keydown', function (event) {
+        if ((event.ctrlKey || event.metaKey) && (event.key === '+' || event.key === '-' || event.key === '=')) {
+            event.preventDefault();
+        }
+    });
+
+    // Prevenir zoom via context menu
+    document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+    });
+
+    // Garantir que o viewport não mude
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+    }
+}
 
 async function initializeApp() {
     // Verificar onboarding - só aparece no primeiro acesso
